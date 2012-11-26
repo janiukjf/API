@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="AlexDB">
+  <DataContextMoniker Name="/AlexDBDataContext" />
+  <nestedChildShapes>
+    <classShape Id="821c3eef-9568-4a8c-8f51-03ec94e05d16" absoluteBounds="1.5, 0.75, 2, 4.4631168619791666">
+      <DataClassMoniker Name="/AlexDBDataContext/user" />
+      <nestedChildShapes>
+        <elementListCompartment Id="1353fbb7-24d3-4f2b-84ec-a20207e9bc8c" absoluteBounds="1.5149999999999997, 1.21, 1.9700000000000002, 3.9031168619791665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

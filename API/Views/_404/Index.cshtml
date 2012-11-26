@@ -1,0 +1,52 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>CURT API Error</title>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,italic,bold,bolditalic' rel='Stylesheet' type='text/css' />
+    <style type="text/css">
+        body{
+            font-family: 'Ubuntu',arial,serif;
+        }
+        
+        span{
+            font-size: 9pt;
+            font-family: Terminal,'Ubuntu',arial,serif;
+        }
+        
+        #footer_links{
+            margin:auto;
+            border-top: 1px solid #999;
+            width: 75%;
+            text-align:center;
+            font-family: 'Ubuntu',arial,serif;
+        }
+        #footer_links a, #footer_links span{
+            color: #999;
+            font-size: 8pt;
+        }
+    </style>
+</head>
+<body>
+    <div style="width: 900px;margin:auto">
+        <div style="width: 500px;height: 600px;padding-top: 50px; margin: auto;">
+            <img src="@Url.Content("~/Content/img/logo.jpg")" style="height: 50px; width: auto; margin: auto; display: block;" />
+            <h1 style="text-align:center">Awwww!!! It's a 404 error!!</h1>
+            <h3 style="text-align:center">The page you requested was not found.<br />That's sad. I feel bad for you.</h3>
+
+        </div>
+
+        <div style="clear:both"></div>
+        <div id="footer_links">
+            <span>
+                &copy; @DateTime.Now.Year CURT Manufacturing |
+                <a href="mailto:api@curtmfg.com" title="Support">Support</a>
+             </span>
+        </div>
+    </div>
+</body>
+</html>
