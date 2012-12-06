@@ -21,3 +21,4 @@ C:\Users\jjaniuk\Projects\API\API\bin\Newtonsoft.Json.xml
 C:\Users\jjaniuk\Projects\API\API\obj\Release\API.dll
 C:\Users\jjaniuk\Projects\API\API\obj\Release\API.pdb
 C:\Users\jjaniuk\Projects\API\API\obj\Release\API.csprojResolveAssemblyReference.cache
+C:\Projects\C#\MVC\API\API\obj\Release\API.csprojResolveAssemblyReference.cache
