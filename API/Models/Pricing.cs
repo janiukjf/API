@@ -76,7 +76,7 @@ namespace API {
                                                 join pr in db.Prices on p.partID equals pr.partID
                                                 join cpr in db.CustomerPricings on p.partID equals cpr.partID into PricingTemp
                                                 from cp in PricingTemp.DefaultIfEmpty()
-                                                where unintegratedIDs.Contains(p.partID) && pr.priceType.ToUpper().Equals("LIST")
+                                                where unintegratedIDs.Contains(p.partID) && cp.cust_id.Equals(this.cust_id) && pr.priceType.ToUpper().Equals("LIST")
                                                 select new SimplePricing {
                                                     cust_id = this.cust_id,
                                                     partID = p.partID,

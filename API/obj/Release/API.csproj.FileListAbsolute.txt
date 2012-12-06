@@ -8,7 +8,6 @@ C:\Projects\C#\MVC\API\API\bin\Newtonsoft.Json.pdb
 C:\Projects\C#\MVC\API\API\bin\Newtonsoft.Json.xml
 C:\Projects\C#\MVC\API\API\obj\Release\API.dll
 C:\Projects\C#\MVC\API\API\obj\Release\API.pdb
-C:\Projects\C#\MVC\API\API\obj\Release\ResolveAssemblyReference.cache
 C:\Projects\C#\MVC\API\API\bin\MoreLinq.dll
 C:\Users\jjaniuk\Projects\API\API\bin\API.dll
 C:\Users\jjaniuk\Projects\API\API\bin\API.pdb
