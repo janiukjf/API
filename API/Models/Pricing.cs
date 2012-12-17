@@ -15,15 +15,15 @@ namespace API {
                                               join cpr in db.CustomerPricings on c.partID equals cpr.partID into PricingTemp
                                               from cp in PricingTemp.DefaultIfEmpty()
                                               join ci in db.CartIntegrations on c.partID equals ci.partID
-                                              where cp.cust_id.Equals(this._cust_id) && ci.custID.Equals(this.cust_id)
+                                              where cp.cust_id.Equals(this._cust_id) || ci.custID.Equals(this.cust_id)
                                               select new SimplePricing {
                                                   cust_id = this.cust_id,
                                                   partID = c.partID,
                                                   custPartID = (ci.custPartID == null)? 0 : ci.custPartID,
-                                                  price = cp.price,
-                                                  isSale = cp.isSale,
-                                                  sale_start = Convert.ToDateTime(cp.sale_start).ToString(),
-                                                  sale_end = Convert.ToDateTime(cp.sale_end).ToString(),
+                                                  price = (cp.price == null)? 0: cp.price,
+                                                  isSale = cp.isSale == null ? 0 : cp.isSale,
+                                                  sale_start = cp.sale_start == null ? "":Convert.ToDateTime(cp.sale_start).ToString(),
+                                                  sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
                                                   msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
                                                   map = c.Prices.Where(x => x.priceType.Equals("Map")).Select(x => x.price1).FirstOrDefault(),
                                               }).DistinctBy(x => x.partID).ToList<SimplePricing>();
