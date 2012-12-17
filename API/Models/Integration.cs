@@ -227,7 +227,10 @@ namespace API {
             CurtDevDataContext db = new CurtDevDataContext();
 
             // Validate required fields
-            if (this.custPartID == 0) { throw new Exception("Customer Part ID failed to validate against null or zero."); }
+
+            // This isn't working because the customer needs to be able to unlink
+            // if (this.custPartID == 0) { throw new Exception("Customer Part ID failed to validate against null or zero."); }
+            //  - ajn
             if (this.partID == 0) { throw new Exception("Part Number failed to validate against null or zero."); }
 
             // Attempt to get a CustomerPricing record for this customerID and partID
