@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><Database Name="CurtDev" Class="CurtDevDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
-  <Connection Mode="WebSettings" ConnectionString="Data Source=.\SQLEXPRESS;Initial Catalog=CurtDev;Integrated Security=True" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="CurtDevConnectionString" Provider="System.Data.SqlClient" />
+  <Connection Mode="WebSettings" ConnectionString="Data Source=216.17.90.83;Initial Catalog=CurtDev;User ID=curtDuser2" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="CurtDevConnectionString" Provider="System.Data.SqlClient" />
   <Table Name="dbo.Class" Member="Classes">
     <Type Name="Class">
       <Column Name="classID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -95,8 +95,8 @@
       <Column Name="state" Member="state1" Type="System.String" DbType="VarChar(100) NOT NULL" CanBeNull="false" />
       <Column Name="abbr" Type="System.String" DbType="VarChar(3) NOT NULL" CanBeNull="false" />
       <Column Name="countryID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Association Name="Customer_PartState" Member="Customer" ThisKey="stateID" OtherKey="stateID" Type="Customer" IsForeignKey="true" />
       <Association Name="CustomerLocation_PartState" Member="CustomerLocation" ThisKey="stateID" OtherKey="stateID" Type="CustomerLocation" IsForeignKey="true" />
+      <Association Name="Customer1_PartState" Member="Customer" ThisKey="stateID" OtherKey="stateID" Type="Customer" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Trailer" Member="Trailers">
@@ -129,33 +129,7 @@
       <Column Name="isSale" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Column Name="sale_start" Type="System.DateTime" DbType="Date" CanBeNull="true" />
       <Column Name="sale_end" Type="System.DateTime" DbType="Date" CanBeNull="true" />
-      <Association Name="Customer_CustomerPricing" Member="Customer" ThisKey="cust_id" OtherKey="cust_id" Type="Customer" IsForeignKey="true" />
-    </Type>
-  </Table>
-  <Table Name="dbo.Customer" Member="Customers">
-    <Type Name="Customer">
-      <Column Name="cust_id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="name" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
-      <Column Name="email" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
-      <Column Name="address" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
-      <Column Name="city" Type="System.String" DbType="VarChar(150)" CanBeNull="true" />
-      <Column Name="stateID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="phone" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="fax" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="contact_person" Type="System.String" DbType="VarChar(300)" CanBeNull="true" />
-      <Column Name="dealer_type" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="latitude" Type="System.String" DbType="VarChar(200)" CanBeNull="true" />
-      <Column Name="longitude" Type="System.String" DbType="VarChar(200)" CanBeNull="true" />
-      <Column Name="password" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
-      <Column Name="website" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
-      <Column Name="customerID" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="isDummy" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
-      <Column Name="parentID" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="searchURL" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
-      <Column Name="APIKey" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
-      <Column Name="tier" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Association Name="Customer_PartState" Member="PartStates" ThisKey="stateID" OtherKey="stateID" Type="PartState" />
-      <Association Name="Customer_CustomerPricing" Member="CustomerPricings" ThisKey="cust_id" OtherKey="cust_id" Type="CustomerPricing" />
+      <Association Name="Customer1_CustomerPricing" Member="Customer" ThisKey="cust_id" OtherKey="cust_id" Type="Customer" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Country" Member="Countries">
@@ -463,6 +437,39 @@
       <Association Name="PartPackage_UnitOfMeasure1" Member="weightUnit" ThisKey="weightUOM" OtherKey="ID" Type="UnitOfMeasure" Cardinality="One" />
       <Association Name="PartPackage_UnitOfMeasure2" Member="packageUnit" ThisKey="packageUOM" OtherKey="ID" Type="UnitOfMeasure" Cardinality="One" />
       <Association Name="Part_PartPackage" Member="Part" AccessModifier="Internal" ThisKey="partID" OtherKey="partID" Type="Part" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Customer" Member="Customers">
+    <Type Name="Customer">
+      <Column Name="cust_id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="name" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
+      <Column Name="email" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
+      <Column Name="address" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
+      <Column Name="city" Type="System.String" DbType="VarChar(150)" CanBeNull="true" />
+      <Column Name="stateID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="phone" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="fax" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="contact_person" Type="System.String" DbType="VarChar(300)" CanBeNull="true" />
+      <Column Name="dealer_type" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="latitude" Type="System.String" DbType="VarChar(200)" CanBeNull="true" />
+      <Column Name="longitude" Type="System.String" DbType="VarChar(200)" CanBeNull="true" />
+      <Column Name="password" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
+      <Column Name="website" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
+      <Column Name="customerID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="isDummy" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="parentID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="searchURL" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
+      <Column Name="eLocalURL" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
+      <Column Name="logo" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
+      <Column Name="address2" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
+      <Column Name="postal_code" Type="System.String" DbType="VarChar(25)" CanBeNull="true" />
+      <Column Name="mCodeID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="salesRepID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="APIKey" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="tier" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="showWebsite" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="Customer1_CustomerPricing" Member="CustomerPricings" ThisKey="cust_id" OtherKey="cust_id" Type="CustomerPricing" />
+      <Association Name="Customer1_PartState" Member="PartStates" ThisKey="stateID" OtherKey="stateID" Type="PartState" />
     </Type>
   </Table>
   <Function Name="dbo.searchIndex" Method="searchIndex">

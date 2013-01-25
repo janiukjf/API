@@ -69,9 +69,6 @@ namespace API
     partial void InsertCustomerPricing(CustomerPricing instance);
     partial void UpdateCustomerPricing(CustomerPricing instance);
     partial void DeleteCustomerPricing(CustomerPricing instance);
-    partial void InsertCustomer(Customer instance);
-    partial void UpdateCustomer(Customer instance);
-    partial void DeleteCustomer(Customer instance);
     partial void InsertCountry(Country instance);
     partial void UpdateCountry(Country instance);
     partial void DeleteCountry(Country instance);
@@ -156,6 +153,9 @@ namespace API
     partial void InsertPartPackage(PartPackage instance);
     partial void UpdatePartPackage(PartPackage instance);
     partial void DeletePartPackage(PartPackage instance);
+    partial void InsertCustomer(Customer instance);
+    partial void UpdateCustomer(Customer instance);
+    partial void DeleteCustomer(Customer instance);
     #endregion
 		
 		public CurtDevDataContext() : 
@@ -289,14 +289,6 @@ namespace API
 			get
 			{
 				return this.GetTable<CustomerPricing>();
-			}
-		}
-		
-		public System.Data.Linq.Table<Customer> Customers
-		{
-			get
-			{
-				return this.GetTable<Customer>();
 			}
 		}
 		
@@ -529,6 +521,14 @@ namespace API
 			get
 			{
 				return this.GetTable<PartPackage>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Customer> Customers
+		{
+			get
+			{
+				return this.GetTable<Customer>();
 			}
 		}
 		
@@ -2269,9 +2269,9 @@ namespace API
 		
 		private int _countryID;
 		
-		private EntityRef<Customer> _Customer;
-		
 		private EntityRef<CustomerLocation> _CustomerLocation;
+		
+		private EntityRef<Customer> _Customer;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -2289,8 +2289,8 @@ namespace API
 		
 		public PartState()
 		{
-			this._Customer = default(EntityRef<Customer>);
 			this._CustomerLocation = default(EntityRef<CustomerLocation>);
+			this._Customer = default(EntityRef<Customer>);
 			OnCreated();
 		}
 		
@@ -2305,7 +2305,7 @@ namespace API
 			{
 				if ((this._stateID != value))
 				{
-					if ((this._Customer.HasLoadedOrAssignedValue || this._CustomerLocation.HasLoadedOrAssignedValue))
+					if ((this._CustomerLocation.HasLoadedOrAssignedValue || this._Customer.HasLoadedOrAssignedValue))
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
@@ -2378,40 +2378,6 @@ namespace API
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer_PartState", Storage="_Customer", ThisKey="stateID", OtherKey="stateID", IsForeignKey=true)]
-		public Customer Customer
-		{
-			get
-			{
-				return this._Customer.Entity;
-			}
-			set
-			{
-				Customer previousValue = this._Customer.Entity;
-				if (((previousValue != value) 
-							|| (this._Customer.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Customer.Entity = null;
-						previousValue.PartStates.Remove(this);
-					}
-					this._Customer.Entity = value;
-					if ((value != null))
-					{
-						value.PartStates.Add(this);
-						this._stateID = value.stateID;
-					}
-					else
-					{
-						this._stateID = default(int);
-					}
-					this.SendPropertyChanged("Customer");
-				}
-			}
-		}
-		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CustomerLocation_PartState", Storage="_CustomerLocation", ThisKey="stateID", OtherKey="stateID", IsForeignKey=true)]
 		public CustomerLocation CustomerLocation
 		{
@@ -2442,6 +2408,40 @@ namespace API
 						this._stateID = default(int);
 					}
 					this.SendPropertyChanged("CustomerLocation");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer1_PartState", Storage="_Customer", ThisKey="stateID", OtherKey="stateID", IsForeignKey=true)]
+		public Customer Customer
+		{
+			get
+			{
+				return this._Customer.Entity;
+			}
+			set
+			{
+				Customer previousValue = this._Customer.Entity;
+				if (((previousValue != value) 
+							|| (this._Customer.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Customer.Entity = null;
+						previousValue.PartStates.Remove(this);
+					}
+					this._Customer.Entity = value;
+					if ((value != null))
+					{
+						value.PartStates.Add(this);
+						this._stateID = value.stateID;
+					}
+					else
+					{
+						this._stateID = default(int);
+					}
+					this.SendPropertyChanged("Customer");
 				}
 			}
 		}
@@ -3051,7 +3051,7 @@ namespace API
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer_CustomerPricing", Storage="_Customer", ThisKey="cust_id", OtherKey="cust_id", IsForeignKey=true)]
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer1_CustomerPricing", Storage="_Customer", ThisKey="cust_id", OtherKey="cust_id", IsForeignKey=true)]
 		public Customer Customer
 		{
 			get
@@ -3103,580 +3103,6 @@ namespace API
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
-		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Customer")]
-	public partial class Customer : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _cust_id;
-		
-		private string _name;
-		
-		private string _email;
-		
-		private string _address;
-		
-		private string _city;
-		
-		private int _stateID;
-		
-		private string _phone;
-		
-		private string _fax;
-		
-		private string _contact_person;
-		
-		private int _dealer_type;
-		
-		private string _latitude;
-		
-		private string _longitude;
-		
-		private string _password;
-		
-		private string _website;
-		
-		private System.Nullable<int> _customerID;
-		
-		private bool _isDummy;
-		
-		private System.Nullable<int> _parentID;
-		
-		private string _searchURL;
-		
-		private System.Guid _APIKey;
-		
-		private int _tier;
-		
-		private EntitySet<PartState> _PartStates;
-		
-		private EntitySet<CustomerPricing> _CustomerPricings;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void Oncust_idChanging(int value);
-    partial void Oncust_idChanged();
-    partial void OnnameChanging(string value);
-    partial void OnnameChanged();
-    partial void OnemailChanging(string value);
-    partial void OnemailChanged();
-    partial void OnaddressChanging(string value);
-    partial void OnaddressChanged();
-    partial void OncityChanging(string value);
-    partial void OncityChanged();
-    partial void OnstateIDChanging(int value);
-    partial void OnstateIDChanged();
-    partial void OnphoneChanging(string value);
-    partial void OnphoneChanged();
-    partial void OnfaxChanging(string value);
-    partial void OnfaxChanged();
-    partial void Oncontact_personChanging(string value);
-    partial void Oncontact_personChanged();
-    partial void Ondealer_typeChanging(int value);
-    partial void Ondealer_typeChanged();
-    partial void OnlatitudeChanging(string value);
-    partial void OnlatitudeChanged();
-    partial void OnlongitudeChanging(string value);
-    partial void OnlongitudeChanged();
-    partial void OnpasswordChanging(string value);
-    partial void OnpasswordChanged();
-    partial void OnwebsiteChanging(string value);
-    partial void OnwebsiteChanged();
-    partial void OncustomerIDChanging(System.Nullable<int> value);
-    partial void OncustomerIDChanged();
-    partial void OnisDummyChanging(bool value);
-    partial void OnisDummyChanged();
-    partial void OnparentIDChanging(System.Nullable<int> value);
-    partial void OnparentIDChanged();
-    partial void OnsearchURLChanging(string value);
-    partial void OnsearchURLChanged();
-    partial void OnAPIKeyChanging(System.Guid value);
-    partial void OnAPIKeyChanged();
-    partial void OntierChanging(int value);
-    partial void OntierChanged();
-    #endregion
-		
-		public Customer()
-		{
-			this._PartStates = new EntitySet<PartState>(new Action<PartState>(this.attach_PartStates), new Action<PartState>(this.detach_PartStates));
-			this._CustomerPricings = new EntitySet<CustomerPricing>(new Action<CustomerPricing>(this.attach_CustomerPricings), new Action<CustomerPricing>(this.detach_CustomerPricings));
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_cust_id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int cust_id
-		{
-			get
-			{
-				return this._cust_id;
-			}
-			set
-			{
-				if ((this._cust_id != value))
-				{
-					this.Oncust_idChanging(value);
-					this.SendPropertyChanging();
-					this._cust_id = value;
-					this.SendPropertyChanged("cust_id");
-					this.Oncust_idChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_name", DbType="VarChar(255)")]
-		public string name
-		{
-			get
-			{
-				return this._name;
-			}
-			set
-			{
-				if ((this._name != value))
-				{
-					this.OnnameChanging(value);
-					this.SendPropertyChanging();
-					this._name = value;
-					this.SendPropertyChanged("name");
-					this.OnnameChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_email", DbType="VarChar(255)")]
-		public string email
-		{
-			get
-			{
-				return this._email;
-			}
-			set
-			{
-				if ((this._email != value))
-				{
-					this.OnemailChanging(value);
-					this.SendPropertyChanging();
-					this._email = value;
-					this.SendPropertyChanged("email");
-					this.OnemailChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_address", DbType="VarChar(500)")]
-		public string address
-		{
-			get
-			{
-				return this._address;
-			}
-			set
-			{
-				if ((this._address != value))
-				{
-					this.OnaddressChanging(value);
-					this.SendPropertyChanging();
-					this._address = value;
-					this.SendPropertyChanged("address");
-					this.OnaddressChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_city", DbType="VarChar(150)")]
-		public string city
-		{
-			get
-			{
-				return this._city;
-			}
-			set
-			{
-				if ((this._city != value))
-				{
-					this.OncityChanging(value);
-					this.SendPropertyChanging();
-					this._city = value;
-					this.SendPropertyChanged("city");
-					this.OncityChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_stateID", DbType="Int NOT NULL")]
-		public int stateID
-		{
-			get
-			{
-				return this._stateID;
-			}
-			set
-			{
-				if ((this._stateID != value))
-				{
-					this.OnstateIDChanging(value);
-					this.SendPropertyChanging();
-					this._stateID = value;
-					this.SendPropertyChanged("stateID");
-					this.OnstateIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_phone", DbType="VarChar(50)")]
-		public string phone
-		{
-			get
-			{
-				return this._phone;
-			}
-			set
-			{
-				if ((this._phone != value))
-				{
-					this.OnphoneChanging(value);
-					this.SendPropertyChanging();
-					this._phone = value;
-					this.SendPropertyChanged("phone");
-					this.OnphoneChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fax", DbType="VarChar(50)")]
-		public string fax
-		{
-			get
-			{
-				return this._fax;
-			}
-			set
-			{
-				if ((this._fax != value))
-				{
-					this.OnfaxChanging(value);
-					this.SendPropertyChanging();
-					this._fax = value;
-					this.SendPropertyChanged("fax");
-					this.OnfaxChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_contact_person", DbType="VarChar(300)")]
-		public string contact_person
-		{
-			get
-			{
-				return this._contact_person;
-			}
-			set
-			{
-				if ((this._contact_person != value))
-				{
-					this.Oncontact_personChanging(value);
-					this.SendPropertyChanging();
-					this._contact_person = value;
-					this.SendPropertyChanged("contact_person");
-					this.Oncontact_personChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_dealer_type", DbType="Int NOT NULL")]
-		public int dealer_type
-		{
-			get
-			{
-				return this._dealer_type;
-			}
-			set
-			{
-				if ((this._dealer_type != value))
-				{
-					this.Ondealer_typeChanging(value);
-					this.SendPropertyChanging();
-					this._dealer_type = value;
-					this.SendPropertyChanged("dealer_type");
-					this.Ondealer_typeChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_latitude", DbType="VarChar(200)")]
-		public string latitude
-		{
-			get
-			{
-				return this._latitude;
-			}
-			set
-			{
-				if ((this._latitude != value))
-				{
-					this.OnlatitudeChanging(value);
-					this.SendPropertyChanging();
-					this._latitude = value;
-					this.SendPropertyChanged("latitude");
-					this.OnlatitudeChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_longitude", DbType="VarChar(200)")]
-		public string longitude
-		{
-			get
-			{
-				return this._longitude;
-			}
-			set
-			{
-				if ((this._longitude != value))
-				{
-					this.OnlongitudeChanging(value);
-					this.SendPropertyChanging();
-					this._longitude = value;
-					this.SendPropertyChanged("longitude");
-					this.OnlongitudeChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_password", DbType="VarChar(255)")]
-		public string password
-		{
-			get
-			{
-				return this._password;
-			}
-			set
-			{
-				if ((this._password != value))
-				{
-					this.OnpasswordChanging(value);
-					this.SendPropertyChanging();
-					this._password = value;
-					this.SendPropertyChanged("password");
-					this.OnpasswordChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_website", DbType="VarChar(500)")]
-		public string website
-		{
-			get
-			{
-				return this._website;
-			}
-			set
-			{
-				if ((this._website != value))
-				{
-					this.OnwebsiteChanging(value);
-					this.SendPropertyChanging();
-					this._website = value;
-					this.SendPropertyChanged("website");
-					this.OnwebsiteChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_customerID", DbType="Int")]
-		public System.Nullable<int> customerID
-		{
-			get
-			{
-				return this._customerID;
-			}
-			set
-			{
-				if ((this._customerID != value))
-				{
-					this.OncustomerIDChanging(value);
-					this.SendPropertyChanging();
-					this._customerID = value;
-					this.SendPropertyChanged("customerID");
-					this.OncustomerIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_isDummy", DbType="Bit NOT NULL")]
-		public bool isDummy
-		{
-			get
-			{
-				return this._isDummy;
-			}
-			set
-			{
-				if ((this._isDummy != value))
-				{
-					this.OnisDummyChanging(value);
-					this.SendPropertyChanging();
-					this._isDummy = value;
-					this.SendPropertyChanged("isDummy");
-					this.OnisDummyChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_parentID", DbType="Int")]
-		public System.Nullable<int> parentID
-		{
-			get
-			{
-				return this._parentID;
-			}
-			set
-			{
-				if ((this._parentID != value))
-				{
-					this.OnparentIDChanging(value);
-					this.SendPropertyChanging();
-					this._parentID = value;
-					this.SendPropertyChanged("parentID");
-					this.OnparentIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_searchURL", DbType="VarChar(500)")]
-		public string searchURL
-		{
-			get
-			{
-				return this._searchURL;
-			}
-			set
-			{
-				if ((this._searchURL != value))
-				{
-					this.OnsearchURLChanging(value);
-					this.SendPropertyChanging();
-					this._searchURL = value;
-					this.SendPropertyChanged("searchURL");
-					this.OnsearchURLChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_APIKey", DbType="UniqueIdentifier NOT NULL")]
-		public System.Guid APIKey
-		{
-			get
-			{
-				return this._APIKey;
-			}
-			set
-			{
-				if ((this._APIKey != value))
-				{
-					this.OnAPIKeyChanging(value);
-					this.SendPropertyChanging();
-					this._APIKey = value;
-					this.SendPropertyChanged("APIKey");
-					this.OnAPIKeyChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tier", DbType="Int NOT NULL")]
-		public int tier
-		{
-			get
-			{
-				return this._tier;
-			}
-			set
-			{
-				if ((this._tier != value))
-				{
-					this.OntierChanging(value);
-					this.SendPropertyChanging();
-					this._tier = value;
-					this.SendPropertyChanged("tier");
-					this.OntierChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer_PartState", Storage="_PartStates", ThisKey="stateID", OtherKey="stateID")]
-		public EntitySet<PartState> PartStates
-		{
-			get
-			{
-				return this._PartStates;
-			}
-			set
-			{
-				this._PartStates.Assign(value);
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer_CustomerPricing", Storage="_CustomerPricings", ThisKey="cust_id", OtherKey="cust_id")]
-		public EntitySet<CustomerPricing> CustomerPricings
-		{
-			get
-			{
-				return this._CustomerPricings;
-			}
-			set
-			{
-				this._CustomerPricings.Assign(value);
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-		
-		private void attach_PartStates(PartState entity)
-		{
-			this.SendPropertyChanging();
-			entity.Customer = this;
-		}
-		
-		private void detach_PartStates(PartState entity)
-		{
-			this.SendPropertyChanging();
-			entity.Customer = null;
-		}
-		
-		private void attach_CustomerPricings(CustomerPricing entity)
-		{
-			this.SendPropertyChanging();
-			entity.Customer = this;
-		}
-		
-		private void detach_CustomerPricings(CustomerPricing entity)
-		{
-			this.SendPropertyChanging();
-			entity.Customer = null;
 		}
 	}
 	
@@ -9934,6 +9360,748 @@ namespace API
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Customer")]
+	public partial class Customer : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _cust_id;
+		
+		private string _name;
+		
+		private string _email;
+		
+		private string _address;
+		
+		private string _city;
+		
+		private int _stateID;
+		
+		private string _phone;
+		
+		private string _fax;
+		
+		private string _contact_person;
+		
+		private int _dealer_type;
+		
+		private string _latitude;
+		
+		private string _longitude;
+		
+		private string _password;
+		
+		private string _website;
+		
+		private System.Nullable<int> _customerID;
+		
+		private bool _isDummy;
+		
+		private System.Nullable<int> _parentID;
+		
+		private string _searchURL;
+		
+		private string _eLocalURL;
+		
+		private string _logo;
+		
+		private string _address2;
+		
+		private string _postal_code;
+		
+		private int _mCodeID;
+		
+		private System.Nullable<int> _salesRepID;
+		
+		private System.Nullable<System.Guid> _APIKey;
+		
+		private int _tier;
+		
+		private bool _showWebsite;
+		
+		private EntitySet<CustomerPricing> _CustomerPricings;
+		
+		private EntitySet<PartState> _PartStates;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void Oncust_idChanging(int value);
+    partial void Oncust_idChanged();
+    partial void OnnameChanging(string value);
+    partial void OnnameChanged();
+    partial void OnemailChanging(string value);
+    partial void OnemailChanged();
+    partial void OnaddressChanging(string value);
+    partial void OnaddressChanged();
+    partial void OncityChanging(string value);
+    partial void OncityChanged();
+    partial void OnstateIDChanging(int value);
+    partial void OnstateIDChanged();
+    partial void OnphoneChanging(string value);
+    partial void OnphoneChanged();
+    partial void OnfaxChanging(string value);
+    partial void OnfaxChanged();
+    partial void Oncontact_personChanging(string value);
+    partial void Oncontact_personChanged();
+    partial void Ondealer_typeChanging(int value);
+    partial void Ondealer_typeChanged();
+    partial void OnlatitudeChanging(string value);
+    partial void OnlatitudeChanged();
+    partial void OnlongitudeChanging(string value);
+    partial void OnlongitudeChanged();
+    partial void OnpasswordChanging(string value);
+    partial void OnpasswordChanged();
+    partial void OnwebsiteChanging(string value);
+    partial void OnwebsiteChanged();
+    partial void OncustomerIDChanging(System.Nullable<int> value);
+    partial void OncustomerIDChanged();
+    partial void OnisDummyChanging(bool value);
+    partial void OnisDummyChanged();
+    partial void OnparentIDChanging(System.Nullable<int> value);
+    partial void OnparentIDChanged();
+    partial void OnsearchURLChanging(string value);
+    partial void OnsearchURLChanged();
+    partial void OneLocalURLChanging(string value);
+    partial void OneLocalURLChanged();
+    partial void OnlogoChanging(string value);
+    partial void OnlogoChanged();
+    partial void Onaddress2Changing(string value);
+    partial void Onaddress2Changed();
+    partial void Onpostal_codeChanging(string value);
+    partial void Onpostal_codeChanged();
+    partial void OnmCodeIDChanging(int value);
+    partial void OnmCodeIDChanged();
+    partial void OnsalesRepIDChanging(System.Nullable<int> value);
+    partial void OnsalesRepIDChanged();
+    partial void OnAPIKeyChanging(System.Nullable<System.Guid> value);
+    partial void OnAPIKeyChanged();
+    partial void OntierChanging(int value);
+    partial void OntierChanged();
+    partial void OnshowWebsiteChanging(bool value);
+    partial void OnshowWebsiteChanged();
+    #endregion
+		
+		public Customer()
+		{
+			this._CustomerPricings = new EntitySet<CustomerPricing>(new Action<CustomerPricing>(this.attach_CustomerPricings), new Action<CustomerPricing>(this.detach_CustomerPricings));
+			this._PartStates = new EntitySet<PartState>(new Action<PartState>(this.attach_PartStates), new Action<PartState>(this.detach_PartStates));
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_cust_id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int cust_id
+		{
+			get
+			{
+				return this._cust_id;
+			}
+			set
+			{
+				if ((this._cust_id != value))
+				{
+					this.Oncust_idChanging(value);
+					this.SendPropertyChanging();
+					this._cust_id = value;
+					this.SendPropertyChanged("cust_id");
+					this.Oncust_idChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_name", DbType="VarChar(255)")]
+		public string name
+		{
+			get
+			{
+				return this._name;
+			}
+			set
+			{
+				if ((this._name != value))
+				{
+					this.OnnameChanging(value);
+					this.SendPropertyChanging();
+					this._name = value;
+					this.SendPropertyChanged("name");
+					this.OnnameChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_email", DbType="VarChar(255)")]
+		public string email
+		{
+			get
+			{
+				return this._email;
+			}
+			set
+			{
+				if ((this._email != value))
+				{
+					this.OnemailChanging(value);
+					this.SendPropertyChanging();
+					this._email = value;
+					this.SendPropertyChanged("email");
+					this.OnemailChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_address", DbType="VarChar(500)")]
+		public string address
+		{
+			get
+			{
+				return this._address;
+			}
+			set
+			{
+				if ((this._address != value))
+				{
+					this.OnaddressChanging(value);
+					this.SendPropertyChanging();
+					this._address = value;
+					this.SendPropertyChanged("address");
+					this.OnaddressChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_city", DbType="VarChar(150)")]
+		public string city
+		{
+			get
+			{
+				return this._city;
+			}
+			set
+			{
+				if ((this._city != value))
+				{
+					this.OncityChanging(value);
+					this.SendPropertyChanging();
+					this._city = value;
+					this.SendPropertyChanged("city");
+					this.OncityChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_stateID", DbType="Int NOT NULL")]
+		public int stateID
+		{
+			get
+			{
+				return this._stateID;
+			}
+			set
+			{
+				if ((this._stateID != value))
+				{
+					this.OnstateIDChanging(value);
+					this.SendPropertyChanging();
+					this._stateID = value;
+					this.SendPropertyChanged("stateID");
+					this.OnstateIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_phone", DbType="VarChar(50)")]
+		public string phone
+		{
+			get
+			{
+				return this._phone;
+			}
+			set
+			{
+				if ((this._phone != value))
+				{
+					this.OnphoneChanging(value);
+					this.SendPropertyChanging();
+					this._phone = value;
+					this.SendPropertyChanged("phone");
+					this.OnphoneChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fax", DbType="VarChar(50)")]
+		public string fax
+		{
+			get
+			{
+				return this._fax;
+			}
+			set
+			{
+				if ((this._fax != value))
+				{
+					this.OnfaxChanging(value);
+					this.SendPropertyChanging();
+					this._fax = value;
+					this.SendPropertyChanged("fax");
+					this.OnfaxChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_contact_person", DbType="VarChar(300)")]
+		public string contact_person
+		{
+			get
+			{
+				return this._contact_person;
+			}
+			set
+			{
+				if ((this._contact_person != value))
+				{
+					this.Oncontact_personChanging(value);
+					this.SendPropertyChanging();
+					this._contact_person = value;
+					this.SendPropertyChanged("contact_person");
+					this.Oncontact_personChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_dealer_type", DbType="Int NOT NULL")]
+		public int dealer_type
+		{
+			get
+			{
+				return this._dealer_type;
+			}
+			set
+			{
+				if ((this._dealer_type != value))
+				{
+					this.Ondealer_typeChanging(value);
+					this.SendPropertyChanging();
+					this._dealer_type = value;
+					this.SendPropertyChanged("dealer_type");
+					this.Ondealer_typeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_latitude", DbType="VarChar(200)")]
+		public string latitude
+		{
+			get
+			{
+				return this._latitude;
+			}
+			set
+			{
+				if ((this._latitude != value))
+				{
+					this.OnlatitudeChanging(value);
+					this.SendPropertyChanging();
+					this._latitude = value;
+					this.SendPropertyChanged("latitude");
+					this.OnlatitudeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_longitude", DbType="VarChar(200)")]
+		public string longitude
+		{
+			get
+			{
+				return this._longitude;
+			}
+			set
+			{
+				if ((this._longitude != value))
+				{
+					this.OnlongitudeChanging(value);
+					this.SendPropertyChanging();
+					this._longitude = value;
+					this.SendPropertyChanged("longitude");
+					this.OnlongitudeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_password", DbType="VarChar(255)")]
+		public string password
+		{
+			get
+			{
+				return this._password;
+			}
+			set
+			{
+				if ((this._password != value))
+				{
+					this.OnpasswordChanging(value);
+					this.SendPropertyChanging();
+					this._password = value;
+					this.SendPropertyChanged("password");
+					this.OnpasswordChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_website", DbType="VarChar(500)")]
+		public string website
+		{
+			get
+			{
+				return this._website;
+			}
+			set
+			{
+				if ((this._website != value))
+				{
+					this.OnwebsiteChanging(value);
+					this.SendPropertyChanging();
+					this._website = value;
+					this.SendPropertyChanged("website");
+					this.OnwebsiteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_customerID", DbType="Int")]
+		public System.Nullable<int> customerID
+		{
+			get
+			{
+				return this._customerID;
+			}
+			set
+			{
+				if ((this._customerID != value))
+				{
+					this.OncustomerIDChanging(value);
+					this.SendPropertyChanging();
+					this._customerID = value;
+					this.SendPropertyChanged("customerID");
+					this.OncustomerIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_isDummy", DbType="Bit NOT NULL")]
+		public bool isDummy
+		{
+			get
+			{
+				return this._isDummy;
+			}
+			set
+			{
+				if ((this._isDummy != value))
+				{
+					this.OnisDummyChanging(value);
+					this.SendPropertyChanging();
+					this._isDummy = value;
+					this.SendPropertyChanged("isDummy");
+					this.OnisDummyChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_parentID", DbType="Int")]
+		public System.Nullable<int> parentID
+		{
+			get
+			{
+				return this._parentID;
+			}
+			set
+			{
+				if ((this._parentID != value))
+				{
+					this.OnparentIDChanging(value);
+					this.SendPropertyChanging();
+					this._parentID = value;
+					this.SendPropertyChanged("parentID");
+					this.OnparentIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_searchURL", DbType="VarChar(500)")]
+		public string searchURL
+		{
+			get
+			{
+				return this._searchURL;
+			}
+			set
+			{
+				if ((this._searchURL != value))
+				{
+					this.OnsearchURLChanging(value);
+					this.SendPropertyChanging();
+					this._searchURL = value;
+					this.SendPropertyChanged("searchURL");
+					this.OnsearchURLChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_eLocalURL", DbType="VarChar(500)")]
+		public string eLocalURL
+		{
+			get
+			{
+				return this._eLocalURL;
+			}
+			set
+			{
+				if ((this._eLocalURL != value))
+				{
+					this.OneLocalURLChanging(value);
+					this.SendPropertyChanging();
+					this._eLocalURL = value;
+					this.SendPropertyChanged("eLocalURL");
+					this.OneLocalURLChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_logo", DbType="VarChar(500)")]
+		public string logo
+		{
+			get
+			{
+				return this._logo;
+			}
+			set
+			{
+				if ((this._logo != value))
+				{
+					this.OnlogoChanging(value);
+					this.SendPropertyChanging();
+					this._logo = value;
+					this.SendPropertyChanged("logo");
+					this.OnlogoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_address2", DbType="VarChar(500)")]
+		public string address2
+		{
+			get
+			{
+				return this._address2;
+			}
+			set
+			{
+				if ((this._address2 != value))
+				{
+					this.Onaddress2Changing(value);
+					this.SendPropertyChanging();
+					this._address2 = value;
+					this.SendPropertyChanged("address2");
+					this.Onaddress2Changed();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_postal_code", DbType="VarChar(25)")]
+		public string postal_code
+		{
+			get
+			{
+				return this._postal_code;
+			}
+			set
+			{
+				if ((this._postal_code != value))
+				{
+					this.Onpostal_codeChanging(value);
+					this.SendPropertyChanging();
+					this._postal_code = value;
+					this.SendPropertyChanged("postal_code");
+					this.Onpostal_codeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_mCodeID", DbType="Int NOT NULL")]
+		public int mCodeID
+		{
+			get
+			{
+				return this._mCodeID;
+			}
+			set
+			{
+				if ((this._mCodeID != value))
+				{
+					this.OnmCodeIDChanging(value);
+					this.SendPropertyChanging();
+					this._mCodeID = value;
+					this.SendPropertyChanged("mCodeID");
+					this.OnmCodeIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_salesRepID", DbType="Int")]
+		public System.Nullable<int> salesRepID
+		{
+			get
+			{
+				return this._salesRepID;
+			}
+			set
+			{
+				if ((this._salesRepID != value))
+				{
+					this.OnsalesRepIDChanging(value);
+					this.SendPropertyChanging();
+					this._salesRepID = value;
+					this.SendPropertyChanged("salesRepID");
+					this.OnsalesRepIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_APIKey", DbType="UniqueIdentifier")]
+		public System.Nullable<System.Guid> APIKey
+		{
+			get
+			{
+				return this._APIKey;
+			}
+			set
+			{
+				if ((this._APIKey != value))
+				{
+					this.OnAPIKeyChanging(value);
+					this.SendPropertyChanging();
+					this._APIKey = value;
+					this.SendPropertyChanged("APIKey");
+					this.OnAPIKeyChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tier", DbType="Int NOT NULL")]
+		public int tier
+		{
+			get
+			{
+				return this._tier;
+			}
+			set
+			{
+				if ((this._tier != value))
+				{
+					this.OntierChanging(value);
+					this.SendPropertyChanging();
+					this._tier = value;
+					this.SendPropertyChanged("tier");
+					this.OntierChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_showWebsite", DbType="Bit NOT NULL")]
+		public bool showWebsite
+		{
+			get
+			{
+				return this._showWebsite;
+			}
+			set
+			{
+				if ((this._showWebsite != value))
+				{
+					this.OnshowWebsiteChanging(value);
+					this.SendPropertyChanging();
+					this._showWebsite = value;
+					this.SendPropertyChanged("showWebsite");
+					this.OnshowWebsiteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer1_CustomerPricing", Storage="_CustomerPricings", ThisKey="cust_id", OtherKey="cust_id")]
+		public EntitySet<CustomerPricing> CustomerPricings
+		{
+			get
+			{
+				return this._CustomerPricings;
+			}
+			set
+			{
+				this._CustomerPricings.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer1_PartState", Storage="_PartStates", ThisKey="stateID", OtherKey="stateID")]
+		public EntitySet<PartState> PartStates
+		{
+			get
+			{
+				return this._PartStates;
+			}
+			set
+			{
+				this._PartStates.Assign(value);
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_CustomerPricings(CustomerPricing entity)
+		{
+			this.SendPropertyChanging();
+			entity.Customer = this;
+		}
+		
+		private void detach_CustomerPricings(CustomerPricing entity)
+		{
+			this.SendPropertyChanging();
+			entity.Customer = null;
+		}
+		
+		private void attach_PartStates(PartState entity)
+		{
+			this.SendPropertyChanging();
+			entity.Customer = this;
+		}
+		
+		private void detach_PartStates(PartState entity)
+		{
+			this.SendPropertyChanging();
+			entity.Customer = null;
 		}
 	}
 }

@@ -9468,7 +9468,7 @@ namespace API.Models {
                                 from st in StateTemp.DefaultIfEmpty()
                                 join dt in db.DealerTypes on c.dealer_type equals dt.dealer_type into DealerTemp
                                 from dt in DealerTemp.DefaultIfEmpty()
-                                where (c.customerID.Equals(cust_id) || c.parentID.Equals(cust_id)) && c.website.Contains(site)
+                                where (c.customerID.Equals(cust_id) || c.parentID.Equals(cust_id)) && (c.website.Contains(site) || c.eLocalURL.Contains(site))
                                 select new eLocal_Customer {
                                     cust_id = (c.customerID != null) ? Convert.ToInt32(c.customerID) : (int)c.parentID,
                                     name = c.name,
@@ -9527,7 +9527,7 @@ namespace API.Models {
                                                 from s in StateTemp.DefaultIfEmpty()
                                                 join dt in db.DealerTypes on c.dealer_type equals dt.dealer_type into DealerTemp
                                                 from dt in DealerTemp.DefaultIfEmpty()
-                                                where c.email.Equals(e) && c.password.Equals(p) && c.website.Contains(u)
+                                                where c.email.Equals(e) && c.password.Equals(p) && (c.website.Contains(u) || c.eLocalURL.Contains(u))
                                                 select new eLocal_Customer {
                                                     cust_id = (c.customerID != null) ? Convert.ToInt32(c.customerID) : (int)c.parentID,
                                                     name = c.name,
@@ -9557,7 +9557,7 @@ namespace API.Models {
                 Customer cust = new Customer();
 
                 cust = (from c in db.Customers
-                        where c.email.Equals(e) && c.website.Contains(u)
+                        where c.email.Equals(e) && (c.website.Contains(u) || c.eLocalURL.Contains(u))
                         select c).FirstOrDefault<Customer>();
                 if (cust.password == null || cust.password.Length == 0) {
                     cust.password = p;
@@ -9851,6 +9851,7 @@ namespace API.Models {
         public string longitude { get; set; }
         public string password { get; set; }
         public string website { get; set; }
+        public string eLocalURL { get; set; }
     }
 
     public class eLocalPricing {
