@@ -289,6 +289,34 @@ namespace API {
             return price;
         }
 
+        public SimplePricing SetToMap(string key) {
+            Authenticate(key);
+            if (this.partID == 0) { throw new Exception("Invalid reference to part."); }
+
+            decimal mapPrice = GetMap();
+
+            var db = new CurtDevDataContext();
+            CustomerPricing pricePoint = db.CustomerPricings.Where(x => x.partID.Equals(this.partID) && x.cust_id.Equals(this.cust_id)).FirstOrDefault<CustomerPricing>();
+            if (pricePoint == null) {
+                pricePoint = new CustomerPricing {
+                    cust_id = this.cust_id,
+                    partID = this.partID,
+                    isSale = 0
+                };
+            }
+            pricePoint.price = mapPrice;
+            db.SubmitChanges();
+
+            return new SimplePricing {
+                cust_id = this.cust_id,
+                partID = pricePoint.partID,
+                price = pricePoint.price,
+                isSale = pricePoint.isSale,
+                sale_start = ((pricePoint.sale_start != null) ? Convert.ToDateTime(pricePoint.sale_start).ToString() : ""),
+                sale_end = ((pricePoint.sale_end != null) ? Convert.ToDateTime(pricePoint.sale_end).ToString() : "")
+            };
+        }
+
         public void RemoveSale(string key) {
             Authenticate(key);
 
@@ -306,7 +334,7 @@ namespace API {
         private bool checkMap() {
             CurtDevDataContext db = new CurtDevDataContext();
             decimal map = db.Prices.Where(x => x.priceType.ToUpper().Equals("MAP") && x.partID.Equals(this.partID)).Select(x => x.price1).FirstOrDefault<decimal>();
-            if (this.price < (map / 2)) {
+            if (this.price < map) {
                 return false;
             }
             return true;
@@ -315,6 +343,11 @@ namespace API {
         internal decimal GetList() {
             CurtDevDataContext db = new CurtDevDataContext();
             return db.Prices.Where(x => x.partID.Equals(this.partID) && x.priceType.ToUpper().Equals("LIST")).Select(x => x.price1).FirstOrDefault<decimal>();
+        }
+
+        internal decimal GetMap(){
+            var db = new CurtDevDataContext();
+            return db.Prices.Where(x => x.partID.Equals(this.partID) && x.priceType.ToUpper().Equals("MAP")).Select(x => x.price1).FirstOrDefault<decimal>();
         }
 
         /*protected int GetCustomerReference() {
