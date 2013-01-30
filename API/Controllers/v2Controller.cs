@@ -1275,6 +1275,24 @@ namespace CURT_Docs.Controllers
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
+        public void ResetAllToMap(string key = "", int customerID = 0) {
+            try {
+                CustomerPricing pricing = new CustomerPricing {
+                    cust_id = customerID
+                };
+                pricing.SetAllToMap(key);
+                Response.ContentType = "text/plain";
+                Response.End();
+            } catch (Exception e) {
+                Response.StatusCode = (int)System.Net.HttpStatusCode.BadRequest;
+                Response.StatusDescription = e.Message;
+                Response.ContentType = "application/json";
+                Response.Write(JsonConvert.SerializeObject(e.Message + e.StackTrace, Formatting.Indented));
+                Response.End();
+            }
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
         public void RemoveSale(string key = "", int customerID = 0, int partID = 0, decimal price = 0) {
             try {
                 CustomerPricing pricing = new CustomerPricing {

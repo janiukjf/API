@@ -96,7 +96,7 @@
       <Column Name="abbr" Type="System.String" DbType="VarChar(3) NOT NULL" CanBeNull="false" />
       <Column Name="countryID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Association Name="CustomerLocation_PartState" Member="CustomerLocation" ThisKey="stateID" OtherKey="stateID" Type="CustomerLocation" IsForeignKey="true" />
-      <Association Name="Customer1_PartState" Member="Customer" ThisKey="stateID" OtherKey="stateID" Type="Customer" IsForeignKey="true" />
+      <Association Name="Customer_PartState" Member="Customer" ThisKey="stateID" OtherKey="stateID" Type="Customer" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Trailer" Member="Trailers">
@@ -129,7 +129,7 @@
       <Column Name="isSale" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Column Name="sale_start" Type="System.DateTime" DbType="Date" CanBeNull="true" />
       <Column Name="sale_end" Type="System.DateTime" DbType="Date" CanBeNull="true" />
-      <Association Name="Customer1_CustomerPricing" Member="Customer" ThisKey="cust_id" OtherKey="cust_id" Type="Customer" IsForeignKey="true" />
+      <Association Name="Customer_CustomerPricing" Member="Customer" ThisKey="cust_id" OtherKey="cust_id" Type="Customer" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Country" Member="Countries">
@@ -468,8 +468,62 @@
       <Column Name="APIKey" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
       <Column Name="tier" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Column Name="showWebsite" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
-      <Association Name="Customer1_CustomerPricing" Member="CustomerPricings" ThisKey="cust_id" OtherKey="cust_id" Type="CustomerPricing" />
-      <Association Name="Customer1_PartState" Member="PartStates" ThisKey="stateID" OtherKey="stateID" Type="PartState" />
+      <Association Name="Customer_PartState" Member="PartStates" ThisKey="stateID" OtherKey="stateID" Type="PartState" />
+      <Association Name="Customer_CustomerPricing" Member="CustomerPricings" ThisKey="cust_id" OtherKey="cust_id" Type="CustomerPricing" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ApiAccess" Member="ApiAccesses">
+    <Type Name="ApiAccess">
+      <Column Name="id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="key_id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="module_id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Association Name="ApiKey_ApiAccess" Member="ApiKey" ThisKey="key_id" OtherKey="id" Type="ApiKey" IsForeignKey="true" />
+      <Association Name="ApiModule_ApiAccess" Member="ApiModule" ThisKey="module_id" OtherKey="id" Type="ApiModule" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ApiKey" Member="ApiKeys">
+    <Type Name="ApiKey">
+      <Column Name="id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="api_key" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="type_id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="user_id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="date_added" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="ApiKey_ApiAccess" Member="ApiAccesses" ThisKey="id" OtherKey="key_id" Type="ApiAccess" />
+      <Association Name="ApiKeyType_ApiKey" Member="ApiKeyType" ThisKey="type_id" OtherKey="id" Type="ApiKeyType" IsForeignKey="true" />
+      <Association Name="CustomerUser_ApiKey" Member="CustomerUser" ThisKey="user_id" OtherKey="id" Type="CustomerUser" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ApiKeyType" Member="ApiKeyTypes">
+    <Type Name="ApiKeyType">
+      <Column Name="id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="type" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
+      <Column Name="date_added" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="ApiKeyType_ApiKey" Member="ApiKeys" ThisKey="id" OtherKey="type_id" Type="ApiKey" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ApiModules" Member="ApiModules">
+    <Type Name="ApiModule">
+      <Column Name="id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="name" Type="System.String" DbType="VarChar(500)" CanBeNull="true" />
+      <Column Name="access_level" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="date_added" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="ApiModule_ApiAccess" Member="ApiAccesses" ThisKey="id" OtherKey="module_id" Type="ApiAccess" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CustomerUser" Member="CustomerUsers">
+    <Type Name="CustomerUser">
+      <Column Name="id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="name" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
+      <Column Name="email" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="password" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="customerID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="date_added" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="locationID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="isSudo" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="cust_ID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="NotCustomer" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="CustomerUser_ApiKey" Member="ApiKeys" ThisKey="id" OtherKey="user_id" Type="ApiKey" />
     </Type>
   </Table>
   <Function Name="dbo.searchIndex" Method="searchIndex">

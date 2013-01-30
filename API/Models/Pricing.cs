@@ -272,10 +272,13 @@ namespace API {
                 pricePoint = new CustomerPricing {
                     cust_id = this.cust_id,
                     partID = this.partID,
-                    isSale = 0
+                    isSale = 0,
+                    price = listPrice
                 };
+                db.CustomerPricings.InsertOnSubmit(pricePoint);
+            } else {
+                pricePoint.price = listPrice;
             }
-            pricePoint.price = listPrice;
             db.SubmitChanges();
 
             SimplePricing price = new SimplePricing {
@@ -287,6 +290,21 @@ namespace API {
                 sale_end = ((pricePoint.sale_end != null) ? Convert.ToDateTime(pricePoint.sale_end).ToString() : "")
             };
             return price;
+        }
+
+        public void SetAllToMap(string key) {
+            Authenticate(key);
+
+            var ctx = new CurtDevDataContext();
+            
+            // Delete existing records
+            ctx.ExecuteCommand(
+                "delete from CustomerPricing where cust_id = {0}", this.cust_id);
+
+            // Repopulate from the Price table
+            ctx.ExecuteCommand(
+                "insert into CustomerPricing(cust_id, partID, price, isSale) select {0},p.partID, p.price,0 from Price p where p.priceType = 'Map'", this.cust_id);
+
         }
 
         public SimplePricing SetToMap(string key) {
@@ -301,10 +319,13 @@ namespace API {
                 pricePoint = new CustomerPricing {
                     cust_id = this.cust_id,
                     partID = this.partID,
+                    price = mapPrice,
                     isSale = 0
                 };
+                db.CustomerPricings.InsertOnSubmit(pricePoint);
+            } else {
+                pricePoint.price = mapPrice;
             }
-            pricePoint.price = mapPrice;
             db.SubmitChanges();
 
             return new SimplePricing {
@@ -364,7 +385,17 @@ namespace API {
             CurtDevDataContext db = new CurtDevDataContext();
             Customer cust = db.Customers.Where(x => x.customerID.Equals(this.cust_id) & x.APIKey.Equals(api_key)).FirstOrDefault<Customer>();
             if (cust == null || cust.cust_id == 0) {
-                throw new Exception("Denied Access.");
+                // We need to attempt to auth against a CustomerUsers Key
+                var customerID = (from cu in db.CustomerUsers
+                            join c in db.Customers on cu.cust_ID equals c.cust_id
+                            join ak in db.ApiKeys on cu.id equals ak.user_id
+                            join akt in db.ApiKeyTypes on ak.type_id equals akt.id
+                            where !akt.type.ToUpper().Equals("AUTHENITCATION") && ak.api_key.Equals(api_key)
+                            && c.customerID.Equals(this.cust_id)
+                            select c.customerID).FirstOrDefault<int?>();
+                if (customerID == null || customerID == 0) {
+                    throw new Exception("Denied Access.");
+                }
             }
         }
 
