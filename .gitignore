@@ -2,6 +2,7 @@
 bin
 obj
 csx
+PublishProfiles
 
 # mstest test results
 TestResults
