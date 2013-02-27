@@ -26,7 +26,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">If dataType equals JSONP, we use callback string as function name</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetYear(string mount = "", string dataType = "", string callback = ""){
-            Logger.LogMessageToFile("Getting Year, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Year");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") {
                 string yearJSON = V2Model.GetYearsJSON(mount);
                 if (dataType.ToUpper() == "JSONP") {
@@ -42,7 +42,6 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetYearsXML(mount));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Year, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -53,7 +52,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">If dataType equals JSONP, we will use callback string as function name.</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetMake(string mount = "", double year = 0,string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Get Make, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Get Make");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") {
                 string makeJSON = V2Model.GetMakesJSON(mount, year);
                 if (dataType.ToUpper() == "JSONP") {
@@ -69,7 +68,6 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetMakesXML(mount, year));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Make, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -81,7 +79,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">If dataType equals JSONP, we will use callback string as function name.</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetModel(string mount = "", double year = 0, string make = "", string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Model, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Model");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") {
                 string modelJSON = V2Model.GetModelsJSON(mount,year,make);
                 if (dataType.ToUpper() == "JSONP") {
@@ -97,7 +95,6 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetModelsXML(mount,year,make));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Model, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -110,7 +107,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">If dataType equals JSONP, we will use callback string as function name.</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetStyle(string mount = "", double year = 0, string make = "", string model = "", string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Style, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Style");
            if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") {
                 string styleJSON = V2Model.GetStylesJSON(mount, year, make, model);
                 if (dataType.ToUpper() == "JSONP") {
@@ -126,7 +123,6 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetStylesXML(mount, year, make, model));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Style, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -140,7 +136,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">If dataType equals JSONP, we will use callback string as function name.</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetVehicle(double year = 0, string make = "", string model = "", string style = "", string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Vehicle, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Vehicle");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") {
                 string vehicleJSON = V2Model.GetVehiclesJSON(year, make, model, style);
                 if (dataType.ToUpper() == "JSONP") {
@@ -156,7 +152,6 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetVehiclesXML(year, make, model, style));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Vehicle, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -166,7 +161,7 @@ namespace CURT_Docs.Controllers
         /// <param name="dataType">Return data type</param>
         /// <param name="callback">If data type is JSONP, wrap in function</param>
         public void GetPartVehicles(int partID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Vehicle Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Vehicle Parts");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string vehicleJSON = V2Model.GetVehiclesByPartJSON(partID);
                 if (dataType.ToUpper() == "JSONP") {
@@ -182,7 +177,6 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetVehiclesByPartXML(partID));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Vehicle Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -199,7 +193,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">IF dataType equals JSONP, we will use callback string as functio name.</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetParts(string mount = "", int vehicleID = 0, double year = 0, string make = "", string model = "", string style = "", string catName = "", string status = "800,900", bool integrated = false, int cust_id = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("GetParts");
             List<int> statuses = splitList(status);
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") {
                 string partJSON = "";
@@ -241,7 +235,6 @@ namespace CURT_Docs.Controllers
                 }
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -258,7 +251,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">IF dataType equals JSONP, we will use callback string as functio name.</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetPartsByList(int vehicleID = 0, double year = 0, string make = "", string model = "", string style = "", string partlist = "", bool integrated = false, int cust_id = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Parts By List, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("GetPartsByList");
             List<int> partids = new List<int>();
             if (partlist.Trim().Length > 0) {
                 try {
@@ -298,7 +291,6 @@ namespace CURT_Docs.Controllers
                 }
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Parts By List, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -309,7 +301,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">If the dataType is equal to JSONP we will use the callback string as the returned function name.</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetPart(int partID = 0, int vehicleID = 0, double year = 0, string make = "", string model = "", string style = "", bool integrated = false, int cust_id = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Part, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Part");
 
             // Validate the partID
             if (partID == 0) {
@@ -350,7 +342,6 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Part, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         /// <summary>
@@ -361,7 +352,7 @@ namespace CURT_Docs.Controllers
         /// <param name="callback">If the dataType is equal to JSONP we will use the callback string as the returned function name.</param>
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetPartPrices(int partID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Part Prices, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Part Prices");
 
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string partJSON = "";
@@ -379,12 +370,11 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetPartPricesXML(partID));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Part Prices, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
         
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetAllParts(string status = "800,900", string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting All Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("All Parts");
 
             List<int> statuses = splitList(status);
             if (dataType.ToUpper() == "JSON") { // Display JSON
@@ -398,7 +388,6 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetAllPartsXML(statuses));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived All Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         [AcceptVerbs(HttpVerbs.Get)]
@@ -421,7 +410,7 @@ namespace CURT_Docs.Controllers
 
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetInstallSheet(int partID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Install Sheet, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Install Sheet");
             // Validate the partID
             if (partID == 0) {
                 Response.ContentType = "application/json";
@@ -449,12 +438,11 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Getting Install Sheet, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetRelatedParts(int partID = 0, string status = "800,900", string dataType = "", string callback = "", bool widget = false, bool integrated = false, int cust_id = 0) {
-            Logger.LogMessageToFile("Getting Related Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Related Parts");
             List<int> statuses = splitList(status);
             // Validate the partID
             if (partID == 0) {
@@ -487,12 +475,11 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Related Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         [AcceptVerbs(HttpVerbs.Get)]
         public void GetLatestParts(int count = 5, string status = "800,900", string dataType = "", string callback = "", bool integrated = false, int cust_id = 0) {
-            Logger.LogMessageToFile("Getting Latest Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Latest Parts");
 
             List<int> statuses = splitList(status);
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
@@ -511,7 +498,6 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetLatestPartsXML(statuses, integrated, cust_id, 6));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Latest Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetSPGridData(int partID = 0, string dataType = "",string callback = "") {
@@ -545,7 +531,7 @@ namespace CURT_Docs.Controllers
         }
 
         public void GetPartsByDateModified(string date = "", string status = "800,900", string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Parts By Date Modified, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Parts By Date Modified");
             List<int> statuses = splitList(status);
             // Validate the partID
             if (date.Length == 0) {
@@ -569,11 +555,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Parts By Date Modified, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetAttributes(int partID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Attributes, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Attributes");
             // Validate the partID
             if (partID == 0) {
                 Response.ContentType = "application/json";
@@ -596,11 +581,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Attributes, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetReviewsByPart(int partID = 0, int page = 1, int perPage = 10, string dataType = "", string callback = "", int cust_id = 0) {
-            Logger.LogMessageToFile("Getting Reviews By Part, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Reviews By Part");
             // Validate the partID
             if (partID == 0) {
                 Response.ContentType = "application/json";
@@ -623,11 +607,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Reviews By Part, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void SubmitReview(int partID = 0, int cust_id = 0, string name = "", string email = "", int rating = 0, string subject = "", string review_text = "") {
-            Logger.LogMessageToFile("Submitting Review, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Submitting Review");
             // Validate the data
             if (partID == 0 || cust_id == 0 || subject == "" || rating == 0 || review_text == "") {
                 Response.ContentType = "application/json";
@@ -640,11 +623,10 @@ namespace CURT_Docs.Controllers
                 Response.Write("success");
                 Response.End();
             }
-            Logger.LogMessageToFile("Submitted Review, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetParentCategories(string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Parent Categories, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Parent Categories");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string catJSON = V2Model.GetParentCategoriesJSON();
                 if (dataType.ToUpper() == "JSONP") {
@@ -660,11 +642,10 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetParentCategoriesXML());
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Parent Categories, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetCategories(int parentID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Categories, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Categories");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string catJSON = V2Model.GetCategoriesJSON(parentID);
                 if (dataType.ToUpper() == "JSONP") {
@@ -680,11 +661,10 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetCategoriesXML(parentID));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Categories, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetPartCategories(int partID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Part Categories, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Part Categories");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string catJSON = V2Model.GetPartCategoriesJSON(partID);
                 if (dataType.ToUpper() == "JSONP") {
@@ -700,11 +680,10 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetPartCategoriesXML(partID));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Part Categories, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetCategory(int catID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Category, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Category");
             if (catID == 0) {
                 Response.ContentType = "text/plain";
                 Response.Write("Invalid category ID.");
@@ -726,11 +705,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Category, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetCategoryByName(string catName = "", string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Category By Name, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Category By Name");
             if (catName.Length == 0) {
                 Response.ContentType = "text/plain";
                 Response.Write("Invalid category name.");
@@ -752,11 +730,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Category By Name, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetCategoryAttributes(int catID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Category, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Category");
             if (catID == 0) {
                 Response.ContentType = "text/plain";
                 Response.Write("Invalid category ID.");
@@ -778,11 +755,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Category, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
         
         public void GetCategoryBreadCrumbs(int catId = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Category Breadcrumbs, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Category Breadcrumbs");
             if (catId == 0) {
                 Response.ContentType = "text/plain";
                 Response.Write("Invalid category id.");
@@ -804,11 +780,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Category Breadcrumbs, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetPartBreadCrumbs(int partID = 0, int catId = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Category Breadcrumbs, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Category Breadcrumbs");
             if (partID == 0) {
                 Response.ContentType = "text/plain";
                 Response.Write("Invalid category id.");
@@ -830,11 +805,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Category Breadcrumbs, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetCategoryParts(int catID = 0, int cust_id = 0, int vehicleID = 0, double year = 0, string make = "", string model = "", string style = "", string status = "800,900", bool integrated = false, string dataType = "", string callback = "", int page = 1, int perpage = 0) {
-            Logger.LogMessageToFile("Getting Category Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Category Parts");
             List<int> statuses = splitList(status);
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string partsJSON = "";
@@ -864,11 +838,10 @@ namespace CURT_Docs.Controllers
                 }
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Category Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetCategoryPartsCount(int catID = 0, int cust_id = 0, string status = "800,900", bool integrated = false, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Category Parts Count, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Category Parts Count");
             string countJSON = "";
             List<int> statuses = splitList(status);
             countJSON = V2Model.GetCategoryPartsCount(catID, statuses, cust_id, integrated);
@@ -880,11 +853,10 @@ namespace CURT_Docs.Controllers
                 Response.Write(countJSON);
             }
             Response.End();
-            Logger.LogMessageToFile("Retreived Category Parts Count, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetCategoryPartsByName(string catName = "", int cust_id = 0, string status = "800,900", bool integrated = false, string dataType = "", string callback = "", int page = 1, int perpage = 0) {
-            Logger.LogMessageToFile("Getting Category Parts By Name, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Category Parts By Name");
             List<int> statuses = splitList(status);
             if (catName.Length == 0) {
                 Response.ContentType = "text/plain";
@@ -907,11 +879,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Category Parts By Name, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetLifestyles(string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Lifestyles, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Lifestyles");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string catJSON = V2Model.GetLifestylesJSON();
                 if (dataType.ToUpper() == "JSONP") {
@@ -927,11 +898,10 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetLifestylesXML());
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Lifestyles, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetLifestyle(int lifestyleid = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Lifestyle, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Lifestyle");
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string catJSON = V2Model.GetLifestyleJSON(lifestyleid);
                 if (dataType.ToUpper() == "JSONP") {
@@ -947,11 +917,10 @@ namespace CURT_Docs.Controllers
                 Response.Write(V2Model.GetLifestyleXML(lifestyleid));
                 Response.End();
             }
-            Logger.LogMessageToFile("Retreived Lifestyle, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetConnector(int vehicleID = 0, double year = 0, string make = "", string model = "", string style = "", string status = "800,900", bool integrated = false, int cust_id = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Connector, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Connector");
             List<int> statuses = splitList(status);
             if (vehicleID == 0) {
                 // We're going to parse out the vehicle record using year make model style...
@@ -988,11 +957,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Connector, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void Search(string search_term = "", string status = "800,900", string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Search, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Search");
             List<int> statuses = splitList(status);
             if (search_term.Length == 0) {
                 Response.ContentType = "text/plain";
@@ -1016,11 +984,10 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Search, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void PowerSearch(string search_term = "", string status = "800,900", bool integrated = false, int customerID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Power Search, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Power Search");
             List<int> statuses = splitList(status);
             if (search_term.Length == 0) {
                 Response.ContentType = "text/plain";
@@ -1043,47 +1010,41 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Power Search, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetDefaultPartImages(bool integrated = false, int cust_id = 0) {
-            Logger.LogMessageToFile("Getting Default Part Images, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Default Part Images");
             Response.ContentType = "text/xml";
             Response.Write(V2Model.GetPartDefaultImages_XML(integrated,cust_id));
             Response.End();
-            Logger.LogMessageToFile("Retreived Default Part Images, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetPartImagesByIndex(char index = 'a', bool integrated = false, int cust_id = 0) {
-            Logger.LogMessageToFile("Getting Part Images By Index, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Part Images By Index");
             Response.ContentType = "text/xml";
             Response.Write(V2Model.GetPartImagesByIndex_XML(index, integrated, cust_id));
             Response.End();
-            Logger.LogMessageToFile("Retreived Part Images By Index, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetPartImages(int partID = 0, bool integrated = false, int cust_id = 0) {
-            Logger.LogMessageToFile("Getting Part Images, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Part Images");
             Response.ContentType = "text/xml";
             Response.Write(V2Model.GetPartImages_XML(partID, integrated, cust_id));
             Response.End();
-            Logger.LogMessageToFile("Retreived Part Images, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetPartImage(int partID = 0, char index = 'a', string size = "Grande") {
-            Logger.LogMessageToFile("Getting Part Image, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Part Image");
             Response.ContentType = "text";
             Response.Write(V2Model.GetPartImage(partID, index, size));
             Response.End();
-            Logger.LogMessageToFile("Retreived Part Image, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
         public void GetFileInfo(string path = "") {
-            Logger.LogMessageToFile("Getting File Info, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("File Info");
             Response.ContentType = "text/xml";
             Response.Write(V2Model.getFileInfo_XML(path));
             Response.End();
-            Logger.LogMessageToFile("Retreived File Info, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
 
@@ -1104,7 +1065,7 @@ namespace CURT_Docs.Controllers
         }
 
         public void GetUnintegratedParts(int customerID = 0, string dataType = "", string callback = "") {
-            Logger.LogMessageToFile("Getting Unintegrated Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
+            Logger.LogMessage("Unintegrated Parts");
             // Validate the customerID
             if (customerID == 0) {
                 Response.ContentType = "application/json";
@@ -1130,7 +1091,6 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 }
             }
-            Logger.LogMessageToFile("Retreived Unintegrated Parts, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
         
         /// <summary>
