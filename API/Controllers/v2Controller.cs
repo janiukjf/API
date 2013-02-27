@@ -599,7 +599,7 @@ namespace CURT_Docs.Controllers
             Logger.LogMessageToFile("Retreived Attributes, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
         }
 
-        public void GetReviewsByPart(int partID = 0, int page = 1, int perPage = 10, string dataType = "", string callback = "") {
+        public void GetReviewsByPart(int partID = 0, int page = 1, int perPage = 10, string dataType = "", string callback = "", int cust_id = 0) {
             Logger.LogMessageToFile("Getting Reviews By Part, Requester: " + Request.ServerVariables["HTTP_REFERER"]);
             // Validate the partID
             if (partID == 0) {
@@ -608,7 +608,7 @@ namespace CURT_Docs.Controllers
                 Response.End();
             } else {
                 if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
-                    string attrJSON = V2Model.GetReviewsByPartJSON(partID, page, perPage);
+                    string attrJSON = V2Model.GetReviewsByPartJSON(partID, page, perPage, cust_id);
                     if (dataType.ToUpper() == "JSONP") {
                         Response.ContentType = "application/x-javascript";
                         Response.Write(callback + "(" + attrJSON + ")");
@@ -619,7 +619,7 @@ namespace CURT_Docs.Controllers
                     Response.End();
                 } else { // Display XML
                     Response.ContentType = "text/xml";
-                    Response.Write(V2Model.GetReviewsByPartXML(partID, page, perPage));
+                    Response.Write(V2Model.GetReviewsByPartXML(partID, page, perPage, cust_id));
                     Response.End();
                 }
             }

@@ -22,3 +22,15 @@ C:\Users\jjaniuk\Projects\API\API\obj\Release\API.dll
 C:\Users\jjaniuk\Projects\API\API\obj\Release\API.pdb
 C:\Users\jjaniuk\Projects\API\API\obj\Release\API.csprojResolveAssemblyReference.cache
 C:\Projects\C#\MVC\API\API\obj\Release\API.csprojResolveAssemblyReference.cache
+C:\Workspace\API\API\bin\API.dll
+C:\Workspace\API\API\bin\API.pdb
+C:\Workspace\API\API\bin\EntityFramework.dll
+C:\Workspace\API\API\bin\LinqKit.dll
+C:\Workspace\API\API\bin\MoreLinq.dll
+C:\Workspace\API\API\bin\Newtonsoft.Json.dll
+C:\Workspace\API\API\bin\EntityFramework.xml
+C:\Workspace\API\API\bin\Newtonsoft.Json.pdb
+C:\Workspace\API\API\bin\Newtonsoft.Json.xml
+C:\Workspace\API\API\obj\Release\API.csprojResolveAssemblyReference.cache
+C:\Workspace\API\API\obj\Release\API.dll
+C:\Workspace\API\API\obj\Release\API.pdb

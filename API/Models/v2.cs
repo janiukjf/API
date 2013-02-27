@@ -15,6 +15,8 @@ using LinqKit;
 namespace API.Models {
     public class V2Model {
 
+
+
         /* Version 2.0 of CURT Manufacturing eCommerce Data API */
 
         public static string GetYearsJSON(string mount = "") {
@@ -624,11 +626,11 @@ namespace API.Models {
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -645,60 +647,66 @@ namespace API.Models {
                 #endregion
             } else {
                 #region Integrated
-                parts = (from p in db.Parts
-                         join ci in db.CartIntegrations on p.partID equals ci.partID
-                         join cu in db.Customers on ci.custID equals cu.customerID
-                         join c in db.Classes on p.classID equals c.classID into ClassTemp
-                         from c in ClassTemp.DefaultIfEmpty()
-                         where p.featured == true && statuslist.Contains(p.status) && cu.customerID.Equals(customerID) && ci.custPartID > 0
-                         orderby p.dateModified descending
-                         select new APIPart {
-                             partID = p.partID,
-                             custPartID = ci.custPartID,
-                             status = p.status,
-                             dateModified = Convert.ToDateTime(p.dateModified).ToString(),
-                             dateAdded = Convert.ToDateTime(p.dateAdded).ToString(),
-                             shortDesc = "CURT " + p.shortDesc + " #" + p.partID.ToString(),
-                             oldPartNumber = p.oldPartNumber,
-                             listPrice = GetCustomerPrice(customerID, p.partID),
-                             pClass = (c != null) ? c.class1 : "",
-                             priceCode = p.priceCode,
-                             relatedCount = db.RelatedParts.Where(x => x.partID == p.partID).Select(x => new { relatedID = x.relatedID }).Count(),
-                             attributes = (from pa in db.PartAttributes
-                                           where pa.partID.Equals(p.partID)
-                                           orderby pa.sort
-                                           select new APIAttribute { key = pa.field, value = pa.value }).ToList<APIAttribute>(),
-                             content = (from co in p.ContentBridges
-                                        orderby co.contentID
-                                        select new APIAttribute { key = co.Content.ContentType.type, value = co.Content.text }).OrderBy(x => x.key).ToList<APIAttribute>(),
-                             videos = (from pv in p.PartVideos
-                                       orderby pv.vTypeID
-                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
-                             packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
-                             pricing = (from pr in db.Prices
-                                        where pr.partID.Equals(p.partID)
-                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
-                             reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
-                                        orderby r.createdDate descending
-                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
-                             averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
-                                              select (double?)r.rating).Average() ?? 0.0,
-                             images = (from pi in db.PartImages
-                                       where pi.partID.Equals(p.partID)
-                                       select new APIImage {
-                                           imageID = pi.imageID,
-                                           sort = pi.sort,
-                                           path = pi.path,
-                                           height = pi.height,
-                                           width = pi.width,
-                                           size = db.PartImageSizes.Where(x => x.sizeID.Equals(pi.sizeID)).Select(x => x.size).FirstOrDefault<string>(),
-                                           partID = pi.partID
-                                       }).OrderBy(x => x.sort).ToList<APIImage>()
-                         }).Distinct().Take(count).ToList<APIPart>();
+                try {
+                    parts = (from p in db.Parts
+                             join ci in db.CartIntegrations on p.partID equals ci.partID
+                             join cu in db.Customers on ci.custID equals cu.customerID
+                             join c in db.Classes on p.classID equals c.classID into ClassTemp
+                             from c in ClassTemp.DefaultIfEmpty()
+                             where p.featured == true && statuslist.Contains(p.status) && cu.customerID.Equals(customerID) && ci.custPartID > 0
+                             orderby p.dateModified descending
+                             select new APIPart {
+                                 partID = p.partID,
+                                 custPartID = ci.custPartID,
+                                 status = p.status,
+                                 dateModified = Convert.ToDateTime(p.dateModified).ToString(),
+                                 dateAdded = Convert.ToDateTime(p.dateAdded).ToString(),
+                                 shortDesc = "CURT " + p.shortDesc + " #" + p.partID.ToString(),
+                                 oldPartNumber = p.oldPartNumber,
+                                 listPrice = GetCustomerPrice(customerID, p.partID),
+                                 pClass = (c != null) ? c.class1 : "",
+                                 priceCode = p.priceCode,
+                                 relatedCount = db.RelatedParts.Where(x => x.partID == p.partID).Select(x => new { relatedID = x.relatedID }).Count(),
+                                 attributes = (from pa in db.PartAttributes
+                                               where pa.partID.Equals(p.partID)
+                                               orderby pa.sort
+                                               select new APIAttribute { key = pa.field, value = pa.value }).ToList<APIAttribute>(),
+                                 content = (from co in p.ContentBridges
+                                            orderby co.contentID
+                                            select new APIAttribute { key = co.Content.ContentType.type, value = co.Content.text }).OrderBy(x => x.key).ToList<APIAttribute>(),
+                                 videos = (from pv in p.PartVideos
+                                           orderby pv.vTypeID
+                                           select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
+                                 packages = (from pp in p.PartPackages
+                                             select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                 pricing = (from pr in db.Prices
+                                            where pr.partID.Equals(p.partID)
+                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
+                                 reviews = (from r in db.Reviews
+                                            where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
+                                            orderby r.createdDate descending
+                                            select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
+                                 averageReview = (from r in db.Reviews
+                                                  where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
+                                                  select (double?)r.rating).Average() ?? 0.0,
+                                 images = (from pi in db.PartImages
+                                           where pi.partID.Equals(p.partID)
+                                           select new APIImage {
+                                               imageID = pi.imageID,
+                                               sort = pi.sort,
+                                               path = pi.path,
+                                               height = pi.height,
+                                               width = pi.width,
+                                               size = db.PartImageSizes.Where(x => x.sizeID.Equals(pi.sizeID)).Select(x => x.size).FirstOrDefault<string>(),
+                                               partID = pi.partID
+                                           }).OrderBy(x => x.sort).ToList<APIImage>()
+                             }).Distinct().Take(count).ToList<APIPart>();
                 #endregion
+                } catch (Exception e) {
+
+                    throw new Exception(e.Message);
+                }
+               
             }
             return JsonConvert.SerializeObject(parts);
         }
@@ -763,10 +771,10 @@ namespace API.Models {
                                                                             select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                     new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in p.Reviews
-                                                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in p.Reviews
-                                                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -849,10 +857,10 @@ namespace API.Models {
                                                                             select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in p.Reviews
-                                                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in p.Reviews
-                                                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -938,11 +946,11 @@ namespace API.Models {
                              drilling = vp.drilling,
                              exposed = vp.exposed,
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -1007,11 +1015,11 @@ namespace API.Models {
                              drilling = vp.drilling,
                              exposed = vp.exposed,
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -1105,10 +1113,10 @@ namespace API.Models {
                                                    new XAttribute("exposed", (vp.exposed != null) ? vp.exposed : ""),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -1208,10 +1216,10 @@ namespace API.Models {
                                                    new XAttribute("exposed", (vp.exposed != null) ? vp.exposed : ""),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -1301,11 +1309,11 @@ namespace API.Models {
                              drilling = vp.drilling,
                              exposed = vp.exposed,
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -1372,11 +1380,11 @@ namespace API.Models {
                              drilling = vp.drilling,
                              exposed = vp.exposed,
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -1470,10 +1478,10 @@ namespace API.Models {
                                                    new XAttribute("exposed", (vp.exposed != null) ? vp.exposed : ""),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -1575,10 +1583,10 @@ namespace API.Models {
                                                    new XAttribute("exposed", (vp.exposed != null) ? vp.exposed : ""),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -1662,11 +1670,11 @@ namespace API.Models {
                              drilling = vp.drilling,
                              exposed = vp.exposed,
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -1727,11 +1735,11 @@ namespace API.Models {
                              drilling = vp.drilling,
                              exposed = vp.exposed,
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -1819,10 +1827,10 @@ namespace API.Models {
                                                    new XAttribute("exposed", (vp.exposed != null) ? vp.exposed : ""),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -1918,10 +1926,10 @@ namespace API.Models {
                                                        new XAttribute("exposed", (vp.exposed != null) ? vp.exposed : ""),
                                                       new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -2006,11 +2014,11 @@ namespace API.Models {
                              drilling = vp.drilling,
                              exposed = vp.exposed,
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -2073,11 +2081,11 @@ namespace API.Models {
                              drilling = vp.drilling,
                              exposed = vp.exposed,
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -2167,10 +2175,10 @@ namespace API.Models {
                                                    new XAttribute("exposed", (vp.exposed != null) ? vp.exposed : ""),
                                                   new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -2268,10 +2276,10 @@ namespace API.Models {
                                                    new XAttribute("exposed", (vp.exposed != null) ? vp.exposed : ""),
                                                   new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -2345,11 +2353,11 @@ namespace API.Models {
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
-                                        where r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in p.Reviews
-                                              where r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in p.PartImages
                                        select new APIImage {
@@ -2402,11 +2410,11 @@ namespace API.Models {
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
-                                        where r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in p.Reviews
-                                              where r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in p.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -2485,10 +2493,10 @@ namespace API.Models {
                                                                            select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                   new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in p.Reviews
-                                                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in p.Reviews
-                                                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -2576,10 +2584,10 @@ namespace API.Models {
                                                                            select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                   new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in p.Reviews
-                                                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in p.Reviews
-                                                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -2659,11 +2667,11 @@ namespace API.Models {
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
-                                        where r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in p.Reviews
-                                              where r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in p.PartImages
                                        select new APIImage {
@@ -2721,11 +2729,11 @@ namespace API.Models {
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
-                                        where r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in p.Reviews
-                                              where r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in p.PartImages
                                        select new APIImage {
@@ -2809,10 +2817,10 @@ namespace API.Models {
                                                                            select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in p.Reviews
-                                                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in p.Reviews
-                                                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -2906,10 +2914,10 @@ namespace API.Models {
                                                                            select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in p.Reviews
-                                                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in p.Reviews
-                                                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -2981,11 +2989,11 @@ namespace API.Models {
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
-                                        where r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in p.Reviews
-                                              where r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in p.PartImages
                                        select new APIImage {
@@ -3033,11 +3041,11 @@ namespace API.Models {
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
-                                        where r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in p.Reviews
-                                              where r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in p.PartImages
                                        select new APIImage {
@@ -3113,10 +3121,10 @@ namespace API.Models {
                                                                             select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in p.Reviews
-                                                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in p.Reviews
-                                                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -3200,10 +3208,10 @@ namespace API.Models {
                                                                             select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                    new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in p.Reviews
-                                                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in p.Reviews
-                                                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -3274,11 +3282,11 @@ namespace API.Models {
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
-                                       where r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in p.Reviews
-                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in p.PartImages
                                       select new APIImage {
@@ -3328,11 +3336,11 @@ namespace API.Models {
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
-                                       where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.partID.Equals(p.partID) &&((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in db.Reviews
-                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in db.PartImages
                                       where pi.partID.Equals(partID)
@@ -3397,11 +3405,11 @@ namespace API.Models {
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
-                                       where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in db.Reviews
-                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in db.PartImages
                                       where pi.partID.Equals(partID)
@@ -3461,11 +3469,11 @@ namespace API.Models {
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
-                                       where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in db.Reviews
-                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in db.PartImages
                                       where pi.partID.Equals(partID)
@@ -3535,11 +3543,11 @@ namespace API.Models {
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
-                                       where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in db.Reviews
-                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in db.PartImages
                                       where pi.partID.Equals(partID)
@@ -3604,11 +3612,11 @@ namespace API.Models {
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
-                                       where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in db.Reviews
-                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in db.PartImages
                                       where pi.partID.Equals(partID)
@@ -3685,10 +3693,10 @@ namespace API.Models {
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
                                 new XAttribute("averageReview", (from r in db.Reviews
-                                                                 where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                 where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                  select (double?)r.rating).Average() ?? 0.0),
                                                     (from r in db.Reviews
-                                                     where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                     where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                      orderby r.createdDate descending
                                                      select new XElement("Review",
                                                          new XAttribute("reviewID", r.reviewID),
@@ -3774,10 +3782,10 @@ namespace API.Models {
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
                                 new XAttribute("averageReview", (from r in db.Reviews
-                                                                 where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                 where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                  select (double?)r.rating).Average() ?? 0.0),
                                                     (from r in db.Reviews
-                                                     where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                     where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                      orderby r.createdDate descending
                                                      select new XElement("Review",
                                                          new XAttribute("reviewID", r.reviewID),
@@ -3884,10 +3892,10 @@ namespace API.Models {
                                                          select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                 new XElement("Reviews",
                                     new XAttribute("averageReview", (from r in db.Reviews
-                                                                     where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                     where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                      select (double?)r.rating).Average() ?? 0.0),
                                                         (from r in db.Reviews
-                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                          orderby r.createdDate descending
                                                          select new XElement("Review",
                                                              new XAttribute("reviewID", r.reviewID),
@@ -3983,10 +3991,10 @@ namespace API.Models {
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
                                 new XAttribute("averageReview", (from r in db.Reviews
-                                                                 where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                 where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                  select (double?)r.rating).Average() ?? 0.0),
                                                     (from r in db.Reviews
-                                                     where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                     where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                      orderby r.createdDate descending
                                                      select new XElement("Review",
                                                          new XAttribute("reviewID", r.reviewID),
@@ -4098,10 +4106,10 @@ namespace API.Models {
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
                                 new XAttribute("averageReview", (from r in db.Reviews
-                                                                 where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                 where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                  select (double?)r.rating).Average() ?? 0.0),
                                                     (from r in db.Reviews
-                                                     where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                     where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                      orderby r.createdDate descending
                                                      select new XElement("Review",
                                                          new XAttribute("reviewID", r.reviewID),
@@ -4201,10 +4209,10 @@ namespace API.Models {
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
                                 new XAttribute("averageReview", (from r in db.Reviews
-                                                                 where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                 where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                  select (double?)r.rating).Average() ?? 0.0),
                                                     (from r in db.Reviews
-                                                     where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                     where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                      orderby r.createdDate descending
                                                      select new XElement("Review",
                                                          new XAttribute("reviewID", r.reviewID),
@@ -4548,11 +4556,11 @@ namespace API.Models {
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -4604,11 +4612,11 @@ namespace API.Models {
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in db.Reviews
-                                        where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                         orderby r.createdDate descending
                                         select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                              averageReview = (from r in db.Reviews
-                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                               select (double?)r.rating).Average() ?? 0.0,
                              images = (from pi in db.PartImages
                                        where pi.partID.Equals(p.partID)
@@ -4688,10 +4696,10 @@ namespace API.Models {
                                                 select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                        new XElement("Reviews",
                             new XAttribute("averageReview", (from r in db.Reviews
-                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                              select (double?)r.rating).Average() ?? 0.0),
                                                 (from r in db.Reviews
-                                                 where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                 where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                  orderby r.createdDate descending
                                                  select new XElement("Review",
                                                      new XAttribute("reviewID", r.reviewID),
@@ -4779,10 +4787,10 @@ namespace API.Models {
                                                 select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                        new XElement("Reviews",
                             new XAttribute("averageReview", (from r in db.Reviews
-                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                              select (double?)r.rating).Average() ?? 0.0),
                                                 (from r in db.Reviews
-                                                 where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                 where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                  orderby r.createdDate descending
                                                  select new XElement("Review",
                                                      new XAttribute("reviewID", r.reviewID),
@@ -5078,7 +5086,7 @@ namespace API.Models {
             return xml;
         }
 
-        public static string GetReviewsByPartJSON(int partID = 0, int page = 1, int perPage = 10) {
+        public static string GetReviewsByPartJSON(int partID = 0, int page = 1, int perPage = 10, int customerID = 0) {
             List<APIReview> reviews = new List<APIReview>();
             CurtDevDataContext db = new CurtDevDataContext();
 
@@ -5091,7 +5099,7 @@ namespace API.Models {
             int skip = (page - 1) * perPage;
 
             reviews = (from r in db.Reviews
-                       where r.approved.Equals(true) && r.active.Equals(true) && r.partID.Equals(partID)
+                       where r.approved.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.partID.Equals(partID)
                        orderby r.createdDate descending
                        select new APIReview {
                            reviewID = r.reviewID,
@@ -5106,7 +5114,7 @@ namespace API.Models {
             return JsonConvert.SerializeObject(reviews);
         }
 
-        public static XDocument GetReviewsByPartXML(int partID = 0, int page = 1, int perPage = 10) {
+        public static XDocument GetReviewsByPartXML(int partID = 0, int page = 1, int perPage = 10, int customerID = 0) {
             XDocument xml = new XDocument();
             XElement reviews = new XElement("Reviews");
 
@@ -5120,7 +5128,7 @@ namespace API.Models {
             CurtDevDataContext db = new CurtDevDataContext();
 
             reviews = new XElement("Reviews", (from r in db.Reviews
-                                               where r.approved.Equals(true) && r.active.Equals(true) && r.partID.Equals(partID)
+                                               where r.approved.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.partID.Equals(partID)
                                                orderby r.createdDate descending
                                                select new XElement("Review",
                                                    new XAttribute("reviewID", r.reviewID),
@@ -5472,11 +5480,11 @@ namespace API.Models {
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
-                                       where r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in p.Reviews
-                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in p.PartImages
                                       select new APIImage {
@@ -5531,11 +5539,11 @@ namespace API.Models {
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
-                                           where r.active.Equals(true) && r.approved.Equals(true)
+                                           where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                            orderby r.createdDate descending
                                            select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                                 averageReview = (from r in p.Reviews
-                                                 where r.active.Equals(true) && r.approved.Equals(true)
+                                                 where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                  select (double?)r.rating).Average() ?? 0.0,
                                 images = (from pi in p.PartImages
                                           select new APIImage {
@@ -5594,11 +5602,11 @@ namespace API.Models {
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
-                                           where r.active.Equals(true) && r.approved.Equals(true)
+                                           where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                            orderby r.createdDate descending
                                            select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                                 averageReview = (from r in p.Reviews
-                                                 where r.active.Equals(true) && r.approved.Equals(true)
+                                                 where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                  select (double?)r.rating).Average() ?? 0.0,
                                 images = (from pi in p.PartImages
                                           where pi.partID.Equals(p.partID)
@@ -5677,11 +5685,11 @@ namespace API.Models {
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
-                                       where r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in p.Reviews
-                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in p.PartImages
                                       select new APIImage {
@@ -5742,11 +5750,11 @@ namespace API.Models {
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
-                                           where r.active.Equals(true) && r.approved.Equals(true)
+                                           where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                            orderby r.createdDate descending
                                            select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                                 averageReview = (from r in p.Reviews
-                                                 where r.active.Equals(true) && r.approved.Equals(true)
+                                                 where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                  select (double?)r.rating).Average() ?? 0.0,
                                 images = (from pi in p.PartImages
                                           select new APIImage {
@@ -5811,11 +5819,11 @@ namespace API.Models {
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
-                                           where r.active.Equals(true) && r.approved.Equals(true)
+                                           where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                            orderby r.createdDate descending
                                            select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                                 averageReview = (from r in p.Reviews
-                                                 where r.active.Equals(true) && r.approved.Equals(true)
+                                                 where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                  select (double?)r.rating).Average() ?? 0.0,
                                 images = (from pi in p.PartImages
                                           where pi.partID.Equals(p.partID)
@@ -5944,11 +5952,11 @@ namespace API.Models {
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
-                                       where r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in p.Reviews
-                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in p.PartImages
                                       select new APIImage {
@@ -6021,11 +6029,11 @@ namespace API.Models {
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
-                                           where r.active.Equals(true) && r.approved.Equals(true)
+                                           where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                            orderby r.createdDate descending
                                            select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                                 averageReview = (from r in p.Reviews
-                                                 where r.active.Equals(true) && r.approved.Equals(true)
+                                                 where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                  select (double?)r.rating).Average() ?? 0.0,
                                 images = (from pi in p.PartImages
                                           select new APIImage {
@@ -6102,11 +6110,11 @@ namespace API.Models {
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
-                                           where r.active.Equals(true) && r.approved.Equals(true)
+                                           where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                            orderby r.createdDate descending
                                            select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                                 averageReview = (from r in p.Reviews
-                                                 where r.active.Equals(true) && r.approved.Equals(true)
+                                                 where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                  select (double?)r.rating).Average() ?? 0.0,
                                 images = (from pi in p.PartImages
                                           select new APIImage {
@@ -6200,10 +6208,10 @@ namespace API.Models {
                                                                           select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                  new XElement("Reviews",
                                                      new XAttribute("averageReview", (from r in db.Reviews
-                                                                                      where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                      where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                       select (double?)r.rating).Average() ?? 0.0),
                                                                          (from r in db.Reviews
-                                                                          where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                          where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                           orderby r.createdDate descending
                                                                           select new XElement("Review",
                                                                               new XAttribute("reviewID", r.reviewID),
@@ -6300,10 +6308,10 @@ namespace API.Models {
                                                                                select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                       new XElement("Reviews",
                                                           new XAttribute("averageReview", (from r in db.Reviews
-                                                                                           where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                           where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                            select (double?)r.rating).Average() ?? 0.0),
                                                                               (from r in db.Reviews
-                                                                               where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                               where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                orderby r.createdDate descending
                                                                                select new XElement("Review",
                                                                                    new XAttribute("reviewID", r.reviewID),
@@ -6404,10 +6412,10 @@ namespace API.Models {
                                                                                select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                       new XElement("Reviews",
                                                           new XAttribute("averageReview", (from r in db.Reviews
-                                                                                           where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                           where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                            select (double?)r.rating).Average() ?? 0.0),
                                                                               (from r in db.Reviews
-                                                                               where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                               where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                orderby r.createdDate descending
                                                                                select new XElement("Review",
                                                                                    new XAttribute("reviewID", r.reviewID),
@@ -6526,10 +6534,10 @@ namespace API.Models {
                                                                           select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                  new XElement("Reviews",
                                                      new XAttribute("averageReview", (from r in db.Reviews
-                                                                                      where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                      where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                       select (double?)r.rating).Average() ?? 0.0),
                                                                          (from r in db.Reviews
-                                                                          where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                          where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                           orderby r.createdDate descending
                                                                           select new XElement("Review",
                                                                               new XAttribute("reviewID", r.reviewID),
@@ -6632,10 +6640,10 @@ namespace API.Models {
                                                                                select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                       new XElement("Reviews",
                                                           new XAttribute("averageReview", (from r in db.Reviews
-                                                                                           where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                           where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                            select (double?)r.rating).Average() ?? 0.0),
                                                                               (from r in db.Reviews
-                                                                               where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                               where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                orderby r.createdDate descending
                                                                                select new XElement("Review",
                                                                                    new XAttribute("reviewID", r.reviewID),
@@ -6742,10 +6750,10 @@ namespace API.Models {
                                                                                select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                       new XElement("Reviews",
                                                           new XAttribute("averageReview", (from r in db.Reviews
-                                                                                           where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                           where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                            select (double?)r.rating).Average() ?? 0.0),
                                                                               (from r in db.Reviews
-                                                                               where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                               where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                orderby r.createdDate descending
                                                                                select new XElement("Review",
                                                                                    new XAttribute("reviewID", r.reviewID),
@@ -6876,10 +6884,10 @@ namespace API.Models {
                                                                           select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                  new XElement("Reviews",
                                                      new XAttribute("averageReview", (from r in db.Reviews
-                                                                                      where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                      where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                       select (double?)r.rating).Average() ?? 0.0),
                                                                          (from r in db.Reviews
-                                                                          where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                          where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                           orderby r.createdDate descending
                                                                           select new XElement("Review",
                                                                               new XAttribute("reviewID", r.reviewID),
@@ -6994,10 +7002,10 @@ namespace API.Models {
                                                                                select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                       new XElement("Reviews",
                                                           new XAttribute("averageReview", (from r in db.Reviews
-                                                                                           where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                           where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                            select (double?)r.rating).Average() ?? 0.0),
                                                                               (from r in db.Reviews
-                                                                               where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                               where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                orderby r.createdDate descending
                                                                                select new XElement("Review",
                                                                                    new XAttribute("reviewID", r.reviewID),
@@ -7116,10 +7124,10 @@ namespace API.Models {
                                                                                select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                       new XElement("Reviews",
                                                           new XAttribute("averageReview", (from r in db.Reviews
-                                                                                           where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                           where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                            select (double?)r.rating).Average() ?? 0.0),
                                                                               (from r in db.Reviews
-                                                                               where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                               where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                orderby r.createdDate descending
                                                                                select new XElement("Review",
                                                                                    new XAttribute("reviewID", r.reviewID),
@@ -7206,11 +7214,11 @@ namespace API.Models {
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
-                                       where r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in p.Reviews
-                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in p.PartImages
                                       select new APIImage {
@@ -7271,11 +7279,11 @@ namespace API.Models {
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
-                                       where r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in p.Reviews
-                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in p.PartImages
                                       where pi.partID.Equals(p.partID)
@@ -7369,10 +7377,10 @@ namespace API.Models {
                                                                              select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                     new XElement("Reviews",
                                                         new XAttribute("averageReview", (from r in db.Reviews
-                                                                                         where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                         where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                          select (double?)r.rating).Average() ?? 0.0),
                                                                             (from r in db.Reviews
-                                                                             where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                             where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                              orderby r.createdDate descending
                                                                              select new XElement("Review",
                                                                                  new XAttribute("reviewID", r.reviewID),
@@ -7475,10 +7483,10 @@ namespace API.Models {
                                                                               select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                      new XElement("Reviews",
                                                          new XAttribute("averageReview", (from r in db.Reviews
-                                                                                          where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                                          where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                                           select (double?)r.rating).Average() ?? 0.0),
                                                                              (from r in db.Reviews
-                                                                              where r.partID.Equals(p.partID) && r.active.Equals(true) && r.approved.Equals(true)
+                                                                              where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
                                                                               orderby r.createdDate descending
                                                                               select new XElement("Review",
                                                                                   new XAttribute("reviewID", r.reviewID),
@@ -8609,11 +8617,11 @@ namespace API.Models {
                                         pricing = (from pr in part.Prices
                                                    select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                         reviews = (from r in part.Reviews
-                                                   where r.active.Equals(true) && r.approved.Equals(true)
+                                                   where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                    orderby r.createdDate descending
                                                    select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                                         averageReview = (from r in part.Reviews
-                                                         where r.active.Equals(true) && r.approved.Equals(true)
+                                                         where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                          select (double?)r.rating).Average() ?? 0.0,
                                         images = (from pi in part.PartImages
                                                   select new APIImage {
@@ -8662,11 +8670,11 @@ namespace API.Models {
                             pricing = (from pr in part.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in part.Reviews
-                                       where r.active.Equals(true) && r.approved.Equals(true)
+                                       where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                        orderby r.createdDate descending
                                        select new APIReview { reviewID = r.reviewID, partID = (r.partID != null) ? (int)r.partID : 0, rating = r.rating, subject = r.subject, review_text = r.review_text, email = r.email, name = r.name, createdDate = String.Format("{0:MM/dd/yyyy hh:mm tt}", r.createdDate) }).Take(10).ToList<APIReview>(),
                             averageReview = (from r in part.Reviews
-                                             where r.active.Equals(true) && r.approved.Equals(true)
+                                             where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                              select (double?)r.rating).Average() ?? 0.0,
                             images = (from pi in part.PartImages
                                       select new APIImage {
@@ -8752,10 +8760,10 @@ namespace API.Models {
                                                                           select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                  new XElement("Reviews",
                                                      new XAttribute("averageReview", (from r in part.Reviews
-                                                                                      where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                      where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                       select (double?)r.rating).Average() ?? 0.0),
                                                                          (from r in part.Reviews
-                                                                          where r.active.Equals(true) && r.approved.Equals(true)
+                                                                          where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                           orderby r.createdDate descending
                                                                           select new XElement("Review",
                                                                               new XAttribute("reviewID", r.reviewID),
@@ -8838,10 +8846,10 @@ namespace API.Models {
                                                                           select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                                  new XElement("Reviews",
                                                      new XAttribute("averageReview", (from r in part.Reviews
-                                                                                      where r.active.Equals(true) && r.approved.Equals(true)
+                                                                                      where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                                       select (double?)r.rating).Average() ?? 0.0),
                                                                          (from r in part.Reviews
-                                                                          where r.active.Equals(true) && r.approved.Equals(true)
+                                                                          where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
                                                                           orderby r.createdDate descending
                                                                           select new XElement("Review",
                                                                               new XAttribute("reviewID", r.reviewID),
