@@ -5,13 +5,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <WebPublishMethod>FTP</WebPublishMethod>
-    <SiteUrlToLaunchAfterPublish />
-    <publishUrl>ftp://216.17.90.82/toroot/wwwroot/curtapi</publishUrl>
-    <DeleteExistingFiles>False</DeleteExistingFiles>
-    <FtpPassiveMode>False</FtpPassiveMode>
-    <FtpSitePath />
-    <UserName>jessica</UserName>
-    <_SavePWD>True</_SavePWD>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAqpIktmYfaEuyCvaqBpvR1wAAAAACAAAAAAADZgAAwAAAABAAAAB0Mu4Zk3K9BX4Mwi2O5ingAAAAAASAAACgAAAAEAAAAAuOD1h5NA5OVLsmlfJKGs8QAAAAtCL1oUr8/qBnNFXWVPWL9hQAAAB/OL5xqbCWgsN7j0DaTf396WRpfg==</EncryptedPassword>
   </PropertyGroup>
 </Project>
