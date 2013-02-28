@@ -52,6 +52,7 @@ namespace API {
                 };
                 db.IPtoDNS.InsertOnSubmit(ipdetails);
                 db.SubmitChanges();
+                ipdetails.LookupAsync();
             }
             return ipdetails;
         }
