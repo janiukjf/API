@@ -15,9 +15,7 @@ namespace CURT_Docs.Controllers
     {
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             base.OnActionExecuting(filterContext);
-
             new APIAnalytic().Log(Request.Url.OriginalString,Request.Url.LocalPath,Request.Url.Query);
-
         }
 
         /* Version 2.0 of CURT Manufacturing eCommerce Data API */
