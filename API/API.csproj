@@ -111,7 +111,7 @@
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Integration.cs" />
     <Compile Include="Models\Fedex.cs" />
-    <Compile Include="Models\Logger.cs" />
+    <Compile Include="Models\APIAnalytic.cs" />
     <Compile Include="Models\Pricing.cs" />
     <Compile Include="Models\RateService.cs" />
     <Compile Include="Models\Users.cs" />
