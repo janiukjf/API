@@ -88,7 +88,7 @@ namespace API {
                                              sale_start = Convert.ToDateTime(cp.sale_start).ToString(),
                                              sale_end = Convert.ToDateTime(cp.sale_end).ToString(),
                                              msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                                             map = c.Prices.Where(x => x.priceType.Equals("SuggestedMap")).Select(x => x.price1).FirstOrDefault(),
+                                             map = c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
                                          }).ToList<SimplePricing>();
             results.AddRange(sales.DistinctBy(x => x.partID).ToList<SimplePricing>());
 
@@ -117,7 +117,7 @@ namespace API {
                                           sale_start = "",
                                           sale_end = "",
                                           msrp = p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                                          map = p.Prices.Where(x => x.priceType.Equals("SuggestedMap")).Select(x => x.price1).FirstOrDefault(),
+                                          map = p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
                                       }).ToList<SimplePricing>());
                 }
             } else {
@@ -132,7 +132,7 @@ namespace API {
                                   sale_start = "",
                                   sale_end = "",
                                   msrp = p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                                  map = p.Prices.Where(x => x.priceType.Equals("SuggestedMap")).Select(x => x.price1).FirstOrDefault(),
+                                  map = p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
                               }).ToList<SimplePricing>();
             }
             results.AddRange(unassigned);
@@ -155,7 +155,7 @@ namespace API {
                         sale_start = cp.sale_start == null ? "" : Convert.ToDateTime(cp.sale_start).ToString(),
                         sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
                         msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                        map = c.Prices.Where(x => x.priceType.Equals("SuggestedMap")).Select(x => x.price1).FirstOrDefault(),
+                        map = c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
                     }).DistinctBy(x => x.partID).ToList<SimplePricing>();
         }
 
@@ -173,7 +173,7 @@ namespace API {
                         sale_start = "",
                         sale_end = "",
                         msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                        map = c.Prices.Where(x => x.priceType.Equals("SuggestedMap")).Select(x => x.price1).FirstOrDefault(),
+                        map = c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
                     }).DistinctBy(x => x.partID).ToList<SimplePricing>();
         }
 
@@ -191,7 +191,7 @@ namespace API {
                         sale_start = cp.sale_start == null ? "" : Convert.ToDateTime(cp.sale_start).ToString(),
                         sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
                         msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                        map = c.Prices.Where(x => x.priceType.Equals("SuggestedMap")).Select(x => x.price1).FirstOrDefault(),
+                        map = c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
                     }).DistinctBy(x => x.partID).ToList<SimplePricing>();
         }
 
@@ -211,7 +211,7 @@ namespace API {
                                                     sale_start = Convert.ToDateTime(cp.sale_start).ToString(),
                                                     sale_end = Convert.ToDateTime(cp.sale_end).ToString(),
                                                     msrp = p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                                                    map = p.Prices.Where(x => x.priceType.Equals("SuggestedMap")).Select(x => x.price1).FirstOrDefault(),
+                                                    map = p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
                                                 }).DistinctBy(x => x.partID).ToList<SimplePricing>();
             return unintegrated;
         }
@@ -354,7 +354,7 @@ namespace API {
 
         private bool checkMap() {
             CurtDevDataContext db = new CurtDevDataContext();
-            decimal map = db.Prices.Where(x => x.priceType.ToUpper().Equals("SUGGESTEDMAP") && x.partID.Equals(this.partID)).Select(x => x.price1).FirstOrDefault<decimal>();
+            decimal map = db.Prices.Where(x => x.priceType.ToUpper().Equals("eMap") && x.partID.Equals(this.partID)).Select(x => x.price1).FirstOrDefault<decimal>();
             if (this.price < map) {
                 return false;
             }
@@ -368,7 +368,7 @@ namespace API {
 
         internal decimal GetMap(){
             var db = new CurtDevDataContext();
-            return db.Prices.Where(x => x.partID.Equals(this.partID) && x.priceType.ToUpper().Equals("SuggestedMap")).Select(x => x.price1).FirstOrDefault<decimal>();
+            return db.Prices.Where(x => x.partID.Equals(this.partID) && x.priceType.ToUpper().Equals("eMap")).Select(x => x.price1).FirstOrDefault<decimal>();
         }
 
         /*protected int GetCustomerReference() {
