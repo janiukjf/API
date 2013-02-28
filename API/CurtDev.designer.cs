@@ -11388,7 +11388,7 @@ namespace API
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="IPtoDN_APIAnalytic", Storage="_APIAnalytics", ThisKey="ID", OtherKey="addressID")]
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="IPtoDNS_APIAnalytic", Storage="_APIAnalytics", ThisKey="ID", OtherKey="addressID")]
 		public EntitySet<APIAnalytic> APIAnalytics
 		{
 			get
@@ -11452,6 +11452,10 @@ namespace API
 		
 		private System.DateTime _date;
 		
+		private string _referrer;
+		
+		private string _HttpMethod;
+		
 		private EntityRef<IPtoDNS> _IPtoDNS;
 		
     #region Extensibility Method Definitions
@@ -11470,6 +11474,10 @@ namespace API
     partial void OnquerystringChanged();
     partial void OndateChanging(System.DateTime value);
     partial void OndateChanged();
+    partial void OnreferrerChanging(string value);
+    partial void OnreferrerChanged();
+    partial void OnHttpMethodChanging(string value);
+    partial void OnHttpMethodChanged();
     #endregion
 		
 		public APIAnalytic()
@@ -11602,7 +11610,47 @@ namespace API
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="IPtoDN_APIAnalytic", Storage="_IPtoDNS", ThisKey="addressID", OtherKey="ID", IsForeignKey=true)]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_referrer", DbType="VarChar(255) NULL")]
+		public string referrer
+		{
+			get
+			{
+				return this._referrer;
+			}
+			set
+			{
+				if ((this._referrer != value))
+				{
+					this.OnreferrerChanging(value);
+					this.SendPropertyChanging();
+					this._referrer = value;
+					this.SendPropertyChanged("referrer");
+					this.OnreferrerChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_HttpMethod", DbType="VarChar(100) NULL")]
+		public string HttpMethod
+		{
+			get
+			{
+				return this._HttpMethod;
+			}
+			set
+			{
+				if ((this._HttpMethod != value))
+				{
+					this.OnHttpMethodChanging(value);
+					this.SendPropertyChanging();
+					this._HttpMethod = value;
+					this.SendPropertyChanged("HttpMethod");
+					this.OnHttpMethodChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="IPtoDNS_APIAnalytic", Storage="_IPtoDNS", ThisKey="addressID", OtherKey="ID", IsForeignKey=true)]
 		public IPtoDNS IPtoDNS
 		{
 			get

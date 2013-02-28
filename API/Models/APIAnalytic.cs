@@ -7,16 +7,19 @@ using System.Linq;
 namespace API {
     partial class APIAnalytic {
 
-        public void Log(string url, string method, string qs) {
+        public void Log() {
             try {
                 CurtDevDataContext db = new CurtDevDataContext();
                 IPtoDNS ip = GetOrCreateIP(GetIp().ToString());
+                HttpRequest req = HttpContext.Current.Request;
                 APIAnalytic entry = new APIAnalytic {
                     ID = Guid.NewGuid(),
                     addressID = ip.ID,
-                    url = url,
-                    method = method,
-                    querystring = qs,
+                    url = req.Url.OriginalString,
+                    method = req.Url.LocalPath,
+                    querystring = req.Url.Query,
+                    referrer = req.ServerVariables["HTTP_REFERER"],
+                    HttpMethod = HttpContext.Current.Request.HttpMethod,
                     date = DateTime.Now
                 };
                 db.APIAnalytics.InsertOnSubmit(entry);
