@@ -19,7 +19,7 @@ namespace API {
                     method = req.Url.LocalPath,
                     querystring = req.Url.Query,
                     referrer = req.ServerVariables["HTTP_REFERER"],
-                    HttpMethod = HttpContext.Current.Request.HttpMethod,
+                    HttpMethod = req.HttpMethod,
                     date = DateTime.Now
                 };
                 db.APIAnalytics.InsertOnSubmit(entry);
