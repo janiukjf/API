@@ -354,8 +354,8 @@ namespace API {
 
         private bool checkMap() {
             CurtDevDataContext db = new CurtDevDataContext();
-            decimal map = db.Prices.Where(x => x.priceType.ToUpper().Equals("eMap") && x.partID.Equals(this.partID)).Select(x => x.price1).FirstOrDefault<decimal>();
-            if (this.price < map) {
+            Price map = db.Prices.Where(x => x.priceType.ToUpper().Equals("eMap") && x.partID.Equals(this.partID)).FirstOrDefault();
+            if (this.price < map.price1 && map.enforced) {
                 return false;
             }
             return true;
