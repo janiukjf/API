@@ -177,6 +177,12 @@ namespace API
     partial void InsertAPIAnalytic(APIAnalytic instance);
     partial void UpdateAPIAnalytic(APIAnalytic instance);
     partial void DeleteAPIAnalytic(APIAnalytic instance);
+    partial void InsertPackageType(PackageType instance);
+    partial void UpdatePackageType(PackageType instance);
+    partial void DeletePackageType(PackageType instance);
+    partial void InsertIncludedPart(IncludedPart instance);
+    partial void UpdateIncludedPart(IncludedPart instance);
+    partial void DeleteIncludedPart(IncludedPart instance);
     #endregion
 		
 		public CurtDevDataContext() : 
@@ -606,6 +612,22 @@ namespace API
 			get
 			{
 				return this.GetTable<APIAnalytic>();
+			}
+		}
+		
+		public System.Data.Linq.Table<PackageType> PackageTypes
+		{
+			get
+			{
+				return this.GetTable<PackageType>();
+			}
+		}
+		
+		public System.Data.Linq.Table<IncludedPart> IncludedParts
+		{
+			get
+			{
+				return this.GetTable<IncludedPart>();
 			}
 		}
 		
@@ -1419,6 +1441,10 @@ namespace API
 		
 		private EntitySet<PartPackage> _PartPackages;
 		
+		private EntityRef<IncludedPart> _IncludedPart;
+		
+		private EntitySet<IncludedPart> _IncludedParts;
+		
     #region Extensibility Method Definitions
     partial void OnLoaded();
     partial void OnValidate(System.Data.Linq.ChangeAction action);
@@ -1455,6 +1481,8 @@ namespace API
 			this._PartVideos = new EntitySet<PartVideo>(new Action<PartVideo>(this.attach_PartVideos), new Action<PartVideo>(this.detach_PartVideos));
 			this._ContentBridges = new EntitySet<ContentBridge>(new Action<ContentBridge>(this.attach_ContentBridges), new Action<ContentBridge>(this.detach_ContentBridges));
 			this._PartPackages = new EntitySet<PartPackage>(new Action<PartPackage>(this.attach_PartPackages), new Action<PartPackage>(this.detach_PartPackages));
+			this._IncludedPart = default(EntityRef<IncludedPart>);
+			this._IncludedParts = new EntitySet<IncludedPart>(new Action<IncludedPart>(this.attach_IncludedParts), new Action<IncludedPart>(this.detach_IncludedParts));
 			OnCreated();
 		}
 		
@@ -1768,6 +1796,48 @@ namespace API
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Part_IncludedPart", Storage="_IncludedPart", ThisKey="partID", OtherKey="includedID", IsUnique=true, IsForeignKey=false)]
+		internal IncludedPart IncludedPart
+		{
+			get
+			{
+				return this._IncludedPart.Entity;
+			}
+			set
+			{
+				IncludedPart previousValue = this._IncludedPart.Entity;
+				if (((previousValue != value) 
+							|| (this._IncludedPart.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._IncludedPart.Entity = null;
+						previousValue.Part = null;
+					}
+					this._IncludedPart.Entity = value;
+					if ((value != null))
+					{
+						value.Part = this;
+					}
+					this.SendPropertyChanged("IncludedPart");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Part_IncludedPart1", Storage="_IncludedParts", ThisKey="partID", OtherKey="partID")]
+		public EntitySet<IncludedPart> IncludedParts
+		{
+			get
+			{
+				return this._IncludedParts;
+			}
+			set
+			{
+				this._IncludedParts.Assign(value);
+			}
+		}
+		
 		public event PropertyChangingEventHandler PropertyChanging;
 		
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -1906,6 +1976,18 @@ namespace API
 		{
 			this.SendPropertyChanging();
 			entity.Part = null;
+		}
+		
+		private void attach_IncludedParts(IncludedPart entity)
+		{
+			this.SendPropertyChanging();
+			entity.ParentPart = this;
+		}
+		
+		private void detach_IncludedParts(IncludedPart entity)
+		{
+			this.SendPropertyChanging();
+			entity.ParentPart = null;
 		}
 	}
 	
@@ -9075,11 +9157,15 @@ namespace API
 		
 		private int _quantity;
 		
+		private int _typeID;
+		
 		private EntityRef<UnitOfMeasure> _dimensionUnit;
 		
 		private EntityRef<UnitOfMeasure> _weightUnit;
 		
 		private EntityRef<UnitOfMeasure> _packageUnit;
+		
+		private EntityRef<PackageType> _PackageType;
 		
 		private EntityRef<Part> _Part;
 		
@@ -9107,6 +9193,8 @@ namespace API
     partial void OnpackageUOMChanged();
     partial void OnquantityChanging(int value);
     partial void OnquantityChanged();
+    partial void OntypeIDChanging(int value);
+    partial void OntypeIDChanged();
     #endregion
 		
 		public PartPackage()
@@ -9114,6 +9202,7 @@ namespace API
 			this._dimensionUnit = default(EntityRef<UnitOfMeasure>);
 			this._weightUnit = default(EntityRef<UnitOfMeasure>);
 			this._packageUnit = default(EntityRef<UnitOfMeasure>);
+			this._PackageType = default(EntityRef<PackageType>);
 			this._Part = default(EntityRef<Part>);
 			OnCreated();
 		}
@@ -9322,6 +9411,26 @@ namespace API
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_typeID", DbType="Int NOT NULL")]
+		public int typeID
+		{
+			get
+			{
+				return this._typeID;
+			}
+			set
+			{
+				if ((this._typeID != value))
+				{
+					this.OntypeIDChanging(value);
+					this.SendPropertyChanging();
+					this._typeID = value;
+					this.SendPropertyChanged("typeID");
+					this.OntypeIDChanged();
+				}
+			}
+		}
+		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="PartPackage_UnitOfMeasure", Storage="_dimensionUnit", ThisKey="dimensionUOM", OtherKey="ID", IsUnique=true, IsForeignKey=false)]
 		public UnitOfMeasure dimensionUnit
 		{
@@ -9405,6 +9514,35 @@ namespace API
 						value.PartPackage2 = this;
 					}
 					this.SendPropertyChanged("packageUnit");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="PartPackage_PackageType", Storage="_PackageType", ThisKey="typeID", OtherKey="ID", IsUnique=true, IsForeignKey=false)]
+		public PackageType PackageType
+		{
+			get
+			{
+				return this._PackageType.Entity;
+			}
+			set
+			{
+				PackageType previousValue = this._PackageType.Entity;
+				if (((previousValue != value) 
+							|| (this._PackageType.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._PackageType.Entity = null;
+						previousValue.PartPackage = null;
+					}
+					this._PackageType.Entity = value;
+					if ((value != null))
+					{
+						value.PartPackage = this;
+					}
+					this.SendPropertyChanged("PackageType");
 				}
 			}
 		}
@@ -11704,6 +11842,349 @@ namespace API
 						this._addressID = default(int);
 					}
 					this.SendPropertyChanged("IPtoDNS");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.PackageType")]
+	public partial class PackageType : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ID;
+		
+		private string _name;
+		
+		private EntityRef<PartPackage> _PartPackage;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    partial void OnnameChanging(string value);
+    partial void OnnameChanged();
+    #endregion
+		
+		public PackageType()
+		{
+			this._PartPackage = default(EntityRef<PartPackage>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					if (this._PartPackage.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_name", DbType="VarChar(255) NOT NULL", CanBeNull=false)]
+		public string name
+		{
+			get
+			{
+				return this._name;
+			}
+			set
+			{
+				if ((this._name != value))
+				{
+					this.OnnameChanging(value);
+					this.SendPropertyChanging();
+					this._name = value;
+					this.SendPropertyChanged("name");
+					this.OnnameChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="PartPackage_PackageType", Storage="_PartPackage", ThisKey="ID", OtherKey="typeID", IsForeignKey=true)]
+		internal PartPackage PartPackage
+		{
+			get
+			{
+				return this._PartPackage.Entity;
+			}
+			set
+			{
+				PartPackage previousValue = this._PartPackage.Entity;
+				if (((previousValue != value) 
+							|| (this._PartPackage.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._PartPackage.Entity = null;
+						previousValue.PackageType = null;
+					}
+					this._PartPackage.Entity = value;
+					if ((value != null))
+					{
+						value.PackageType = this;
+						this._ID = value.typeID;
+					}
+					else
+					{
+						this._ID = default(int);
+					}
+					this.SendPropertyChanged("PartPackage");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.IncludedPart")]
+	public partial class IncludedPart : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _id;
+		
+		private int _partID;
+		
+		private int _includedID;
+		
+		private int _quantity;
+		
+		private EntityRef<Part> _Part;
+		
+		private EntityRef<Part> _ParentPart;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnidChanging(int value);
+    partial void OnidChanged();
+    partial void OnpartIDChanging(int value);
+    partial void OnpartIDChanged();
+    partial void OnincludedIDChanging(int value);
+    partial void OnincludedIDChanged();
+    partial void OnquantityChanging(int value);
+    partial void OnquantityChanged();
+    #endregion
+		
+		public IncludedPart()
+		{
+			this._Part = default(EntityRef<Part>);
+			this._ParentPart = default(EntityRef<Part>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int id
+		{
+			get
+			{
+				return this._id;
+			}
+			set
+			{
+				if ((this._id != value))
+				{
+					this.OnidChanging(value);
+					this.SendPropertyChanging();
+					this._id = value;
+					this.SendPropertyChanged("id");
+					this.OnidChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_partID", DbType="Int NOT NULL")]
+		public int partID
+		{
+			get
+			{
+				return this._partID;
+			}
+			set
+			{
+				if ((this._partID != value))
+				{
+					if (this._ParentPart.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnpartIDChanging(value);
+					this.SendPropertyChanging();
+					this._partID = value;
+					this.SendPropertyChanged("partID");
+					this.OnpartIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_includedID", DbType="Int NOT NULL")]
+		public int includedID
+		{
+			get
+			{
+				return this._includedID;
+			}
+			set
+			{
+				if ((this._includedID != value))
+				{
+					if (this._Part.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnincludedIDChanging(value);
+					this.SendPropertyChanging();
+					this._includedID = value;
+					this.SendPropertyChanged("includedID");
+					this.OnincludedIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_quantity", DbType="Int NOT NULL")]
+		public int quantity
+		{
+			get
+			{
+				return this._quantity;
+			}
+			set
+			{
+				if ((this._quantity != value))
+				{
+					this.OnquantityChanging(value);
+					this.SendPropertyChanging();
+					this._quantity = value;
+					this.SendPropertyChanged("quantity");
+					this.OnquantityChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Part_IncludedPart", Storage="_Part", ThisKey="includedID", OtherKey="partID", IsForeignKey=true)]
+		internal Part Part
+		{
+			get
+			{
+				return this._Part.Entity;
+			}
+			set
+			{
+				Part previousValue = this._Part.Entity;
+				if (((previousValue != value) 
+							|| (this._Part.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Part.Entity = null;
+						previousValue.IncludedPart = null;
+					}
+					this._Part.Entity = value;
+					if ((value != null))
+					{
+						value.IncludedPart = this;
+						this._includedID = value.partID;
+					}
+					else
+					{
+						this._includedID = default(int);
+					}
+					this.SendPropertyChanged("Part");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Part_IncludedPart1", Storage="_ParentPart", ThisKey="partID", OtherKey="partID", IsForeignKey=true)]
+		internal Part ParentPart
+		{
+			get
+			{
+				return this._ParentPart.Entity;
+			}
+			set
+			{
+				Part previousValue = this._ParentPart.Entity;
+				if (((previousValue != value) 
+							|| (this._ParentPart.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._ParentPart.Entity = null;
+						previousValue.IncludedParts.Remove(this);
+					}
+					this._ParentPart.Entity = value;
+					if ((value != null))
+					{
+						value.IncludedParts.Add(this);
+						this._partID = value.partID;
+					}
+					else
+					{
+						this._partID = default(int);
+					}
+					this.SendPropertyChanged("ParentPart");
 				}
 			}
 		}

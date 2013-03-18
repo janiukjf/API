@@ -214,7 +214,8 @@ namespace API.Models {
             List<PartPackage> items = new List<PartPackage>();
             CurtDevDataContext db = new CurtDevDataContext();
             foreach (int part in _parts) {
-                List<PartPackage> ppackages = db.PartPackages.Where(x => x.partID.Equals(part)).ToList<PartPackage>();
+                // package type ID 1 = shipping box
+                List<PartPackage> ppackages = db.PartPackages.Where(x => x.partID.Equals(part) && x.typeID.Equals(1)).ToList<PartPackage>();
                 foreach (PartPackage ppackage in ppackages) {
                     for (int p = 0; p < ppackage.quantity; p++) {
                         items.Add(ppackage);

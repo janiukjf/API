@@ -432,6 +432,7 @@ namespace API.Models {
         public string weightUnitLabel { get; set; }
         public string packageUnit { get; set; }
         public string packageUnitLabel { get; set; }
+        public PackageType packageType { get; set; }
     }
 
     public class APIReview {

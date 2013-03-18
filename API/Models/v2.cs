@@ -621,7 +621,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -678,7 +678,7 @@ namespace API.Models {
                                            orderby pv.vTypeID
                                            select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                  packages = (from pp in p.PartPackages
-                                             select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                             select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                  pricing = (from pr in db.Prices
                                             where pr.partID.Equals(p.partID)
                                             select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -850,7 +850,9 @@ namespace API.Models {
                                                                                  new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                  new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                  new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                 new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                              )).ToList<XElement>()),
                                                    new XElement("Pricing", (from pr in p.Prices
                                                                             orderby pr.priceType
@@ -938,7 +940,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -1007,7 +1009,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -1102,7 +1104,9 @@ namespace API.Models {
                                                                                  new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                  new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                  new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                 new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                              )).ToList<XElement>()),
                                                    new XElement("Pricing", (from pr in db.Prices
                                                                             where pr.partID.Equals(p.partID)
@@ -1205,7 +1209,9 @@ namespace API.Models {
                                                                                  new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                  new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                  new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                 new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                              )).ToList<XElement>()),
                                                    new XElement("Pricing", (from pr in db.Prices
                                                                             where pr.partID.Equals(p.partID)
@@ -1301,7 +1307,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -1372,7 +1378,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -1467,7 +1473,9 @@ namespace API.Models {
                                                                                  new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                  new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                  new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                 new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                              )).ToList<XElement>()),
                                                   new XElement("Pricing", (from pr in db.Prices
                                                                            where pr.partID.Equals(p.partID)
@@ -1572,7 +1580,9 @@ namespace API.Models {
                                                                                  new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                  new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                  new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                 new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                              )).ToList<XElement>()),
                                                   new XElement("Pricing", (from pr in db.Prices
                                                                            where pr.partID.Equals(p.partID)
@@ -1662,7 +1672,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -1727,7 +1737,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -1816,7 +1826,9 @@ namespace API.Models {
                                                                                      new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                      new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                      new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                     new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                  )).ToList<XElement>()),
                                                       new XElement("Pricing", (from pr in db.Prices
                                                                                where pr.partID.Equals(p.partID)
@@ -1915,7 +1927,9 @@ namespace API.Models {
                                                                                      new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                      new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                      new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                     new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                  )).ToList<XElement>()),
                                                       new XElement("Pricing", (from pr in db.Prices
                                                                                where pr.partID.Equals(p.partID)
@@ -2006,7 +2020,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -2073,7 +2087,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -2164,7 +2178,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                   new XElement("Pricing", (from pr in db.Prices
                                                                            where pr.partID.Equals(p.partID)
@@ -2265,7 +2281,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                   new XElement("Pricing", (from pr in db.Prices
                                                                            where pr.partID.Equals(p.partID)
@@ -2349,7 +2367,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
@@ -2406,7 +2424,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
@@ -2486,7 +2504,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                   new XElement("Pricing", (from pr in p.Prices
                                                                            orderby pr.priceType
@@ -2577,7 +2597,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                   new XElement("Pricing", (from pr in p.Prices
                                                                            orderby pr.priceType
@@ -2663,7 +2685,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
@@ -2725,7 +2747,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
@@ -2810,7 +2832,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                   new XElement("Pricing", (from pr in p.Prices
                                                                            orderby pr.priceType
@@ -2907,7 +2931,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                   new XElement("Pricing", (from pr in p.Prices
                                                                            orderby pr.priceType
@@ -2984,7 +3010,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -3037,7 +3063,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in p.Prices
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                              reviews = (from r in p.Reviews
@@ -3114,7 +3140,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                    new XElement("Pricing", (from pr in p.Prices
                                                                             orderby pr.priceType
@@ -3201,7 +3229,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                    new XElement("Pricing", (from pr in p.Prices
                                                                             orderby pr.priceType
@@ -3278,7 +3308,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
@@ -3331,7 +3361,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -3400,7 +3430,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -3464,7 +3494,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -3538,7 +3568,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -3607,7 +3637,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
                                        where pr.partID.Equals(p.partID)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -3685,7 +3715,9 @@ namespace API.Models {
                                                         new XAttribute("weightUnit", pp.weightUnit.code),
                                                         new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                         new XAttribute("packageUnit", pp.packageUnit.code),
-                                                        new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                        new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                        new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                        new XAttribute("packageType", pp.PackageType.name)
                                                     )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
                                                      where pr.partID.Equals(p.partID)
@@ -3774,7 +3806,9 @@ namespace API.Models {
                                                           new XAttribute("weightUnit", pp.weightUnit.code),
                                                           new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                           new XAttribute("packageUnit", pp.packageUnit.code),
-                                                          new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                            new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                            new XAttribute("packageType", pp.PackageType.name)
                                                       )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
                                                      where pr.partID.Equals(p.partID)
@@ -3884,7 +3918,9 @@ namespace API.Models {
                                                               new XAttribute("weightUnit", pp.weightUnit.code),
                                                               new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                               new XAttribute("packageUnit", pp.packageUnit.code),
-                                                              new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                new XAttribute("packageType", pp.PackageType.name)
                                                           )).ToList<XElement>()),
                                 new XElement("Pricing", (from pr in db.Prices
                                                          where pr.partID.Equals(p.partID)
@@ -3983,7 +4019,9 @@ namespace API.Models {
                                                             new XAttribute("weightUnit", pp.weightUnit.code),
                                                             new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                             new XAttribute("packageUnit", pp.packageUnit.code),
-                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                            new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                            new XAttribute("packageType", pp.PackageType.name)
                                                         )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
                                                      where pr.partID.Equals(p.partID)
@@ -4098,7 +4136,9 @@ namespace API.Models {
                                                             new XAttribute("weightUnit", pp.weightUnit.code),
                                                             new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                             new XAttribute("packageUnit", pp.packageUnit.code),
-                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                            new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                            new XAttribute("packageType", pp.PackageType.name)
                                                         )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
                                                      where pr.partID.Equals(p.partID)
@@ -4201,7 +4241,9 @@ namespace API.Models {
                                                             new XAttribute("weightUnit", pp.weightUnit.code),
                                                             new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                             new XAttribute("packageUnit", pp.packageUnit.code),
-                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                            new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                            new XAttribute("packageType", pp.PackageType.name)
                                                         )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
                                                      where pr.partID.Equals(p.partID)
@@ -4356,7 +4398,7 @@ namespace API.Models {
                                    orderby pv.vTypeID
                                    select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                          packages = (from pp in p.PartPackages
-                                     select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                     select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                          pricing = (from pr in db.Prices
                                     where pr.partID.Equals(p.partID)
                                     select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -4441,7 +4483,9 @@ namespace API.Models {
                                                                       new XAttribute("weightUnit", pp.weightUnit.code),
                                                                       new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                       new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                      new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                        new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                        new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                        new XAttribute("packageType", pp.PackageType.name)
                                                                   )).ToList<XElement>()),
                                          new XElement("Pricing", (from pr in db.Prices
                                                                   where pr.partID.Equals(p.partID)
@@ -4551,7 +4595,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -4607,7 +4651,7 @@ namespace API.Models {
                                        orderby pv.vTypeID
                                        select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                              packages = (from pp in p.PartPackages
-                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                              pricing = (from pr in db.Prices
                                         where pr.partID.Equals(p.partID)
                                         select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -4688,7 +4732,9 @@ namespace API.Models {
                                                         new XAttribute("weightUnit", pp.weightUnit.code),
                                                         new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                         new XAttribute("packageUnit", pp.packageUnit.code),
-                                                        new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                        new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                        new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                        new XAttribute("packageType", pp.PackageType.name)
                                                     )).ToList<XElement>()),
                        new XElement("Pricing", (from pr in db.Prices
                                                 where pr.partID.Equals(p.partID)
@@ -4779,7 +4825,9 @@ namespace API.Models {
                                                       new XAttribute("weightUnit", pp.weightUnit.code),
                                                       new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                       new XAttribute("packageUnit", pp.packageUnit.code),
-                                                      new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                        new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                        new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                        new XAttribute("packageType", pp.PackageType.name)
                                                   )).ToList<XElement>()),
                        new XElement("Pricing", (from pr in db.Prices
                                                 where pr.partID.Equals(p.partID)
@@ -4925,7 +4973,7 @@ namespace API.Models {
                                    orderby pv.vTypeID
                                    select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                          packages = (from pp in p.PartPackages
-                                     select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                     select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                          pricing = (from pr in db.Prices
                                     where pr.partID.Equals(p.partID)
                                     select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -5006,7 +5054,9 @@ namespace API.Models {
                                                                                   new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                   new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                   new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                  new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                               )).ToList<XElement>()),
                                                    new XElement("Pricing", (from pr in db.Prices
                                                                             where pr.partID.Equals(p.partID)
@@ -5476,7 +5526,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
@@ -5535,7 +5585,7 @@ namespace API.Models {
                                           orderby pv.vTypeID
                                           select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                 packages = (from pp in p.PartPackages
-                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
@@ -5598,7 +5648,7 @@ namespace API.Models {
                                           orderby pv.vTypeID
                                           select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                 packages = (from pp in p.PartPackages
-                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
@@ -5681,7 +5731,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
@@ -5746,7 +5796,7 @@ namespace API.Models {
                                           orderby pv.vTypeID
                                           select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                 packages = (from pp in p.PartPackages
-                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
@@ -5815,7 +5865,7 @@ namespace API.Models {
                                           orderby pv.vTypeID
                                           select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                 packages = (from pp in p.PartPackages
-                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
@@ -5948,7 +5998,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
@@ -6025,7 +6075,7 @@ namespace API.Models {
                                           orderby pv.vTypeID
                                           select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                 packages = (from pp in p.PartPackages
-                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
@@ -6106,7 +6156,7 @@ namespace API.Models {
                                           orderby pv.vTypeID
                                           select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                 packages = (from pp in p.PartPackages
-                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                            select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                 pricing = (from pr in p.Prices
                                            select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                 reviews = (from r in p.Reviews
@@ -6200,7 +6250,9 @@ namespace API.Models {
                                                                               new XAttribute("weightUnit", pp.weightUnit.code),
                                                                               new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                               new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                              new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                           )).ToList<XElement>()),
                                                  new XElement("Pricing", (from pr in db.Prices
                                                                           where pr.partID.Equals(p.partID)
@@ -6300,7 +6352,9 @@ namespace API.Models {
                                                                                     new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                     new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                     new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                 )).ToList<XElement>()),
                                                       new XElement("Pricing", (from pr in db.Prices
                                                                                where pr.partID.Equals(p.partID)
@@ -6404,7 +6458,9 @@ namespace API.Models {
                                                                                     new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                     new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                     new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                 )).ToList<XElement>()),
                                                       new XElement("Pricing", (from pr in db.Prices
                                                                                where pr.partID.Equals(p.partID)
@@ -6526,7 +6582,9 @@ namespace API.Models {
                                                                             new XAttribute("weightUnit", pp.weightUnit.code),
                                                                             new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                             new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                            new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                            new XAttribute("packageType", pp.PackageType.name)
                                                                         )).ToList<XElement>()),
                                                  new XElement("Pricing", (from pr in db.Prices
                                                                           where pr.partID.Equals(p.partID)
@@ -6632,7 +6690,9 @@ namespace API.Models {
                                                                                     new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                     new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                     new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                 )).ToList<XElement>()),
                                                       new XElement("Pricing", (from pr in db.Prices
                                                                                where pr.partID.Equals(p.partID)
@@ -6742,7 +6802,9 @@ namespace API.Models {
                                                                                     new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                     new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                     new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                 )).ToList<XElement>()),
                                                       new XElement("Pricing", (from pr in db.Prices
                                                                                where pr.partID.Equals(p.partID)
@@ -6876,7 +6938,9 @@ namespace API.Models {
                                                                             new XAttribute("weightUnit", pp.weightUnit.code),
                                                                             new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                             new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                            new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                            new XAttribute("packageType", pp.PackageType.name)
                                                                         )).ToList<XElement>()),
                                                  new XElement("Pricing", (from pr in db.Prices
                                                                           where pr.partID.Equals(p.partID)
@@ -6994,7 +7058,9 @@ namespace API.Models {
                                                                                     new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                     new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                     new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                 )).ToList<XElement>()),
                                                       new XElement("Pricing", (from pr in db.Prices
                                                                                where pr.partID.Equals(p.partID)
@@ -7116,7 +7182,9 @@ namespace API.Models {
                                                                                     new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                     new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                     new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                 )).ToList<XElement>()),
                                                       new XElement("Pricing", (from pr in db.Prices
                                                                                where pr.partID.Equals(p.partID)
@@ -7210,7 +7278,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
@@ -7275,7 +7343,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in p.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in p.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
@@ -7369,7 +7437,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                     new XElement("Pricing", (from pr in db.Prices
                                                                              where pr.partID.Equals(p.partID)
@@ -7475,7 +7545,9 @@ namespace API.Models {
                                                                                 new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                 new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                 new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                             )).ToList<XElement>()),
                                                      new XElement("Pricing", (from pr in db.Prices
                                                                               where pr.partID.Equals(p.partID)
@@ -7723,7 +7795,7 @@ namespace API.Models {
                                             orderby pv.vTypeID
                                             select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                   packages = (from pp in p.PartPackages
-                                              select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                              select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                   pricing = (from pr in db.Prices
                                              where pr.partID.Equals(p.partID)
                                              select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -7779,7 +7851,7 @@ namespace API.Models {
                                             orderby pv.vTypeID
                                             select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                   packages = (from pp in p.PartPackages
-                                              select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                              select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                   pricing = (from pr in db.Prices
                                              where pr.partID.Equals(p.partID)
                                              select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -7860,7 +7932,9 @@ namespace API.Models {
                                                                                     new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                     new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                     new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                    new XAttribute("packageType", pp.PackageType.name)
                                                                                 )).ToList<XElement>()),
                                                        new XElement("Pricing", (from pr in db.Prices
                                                                                 where pr.partID.Equals(p.partID)
@@ -7943,7 +8017,9 @@ namespace API.Models {
                                                                                             new XAttribute("weightUnit", pp.weightUnit.code),
                                                                                             new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                                             new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                            new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                            new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                            new XAttribute("packageType", pp.PackageType.name)
                                                                                         )).ToList<XElement>()),
                                                                new XElement("Pricing", (from pr in db.Prices
                                                                                         where pr.partID.Equals(p.partID)
@@ -8024,7 +8100,7 @@ namespace API.Models {
                                             orderby pv.vTypeID
                                             select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                   packages = (from pp in p.PartPackages
-                                              select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                              select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                   pricing = (from pr in db.Prices
                                              where pr.partID.Equals(p.partID)
                                              select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -8085,7 +8161,7 @@ namespace API.Models {
                                             orderby pv.vTypeID
                                             select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                   packages = (from pp in p.PartPackages
-                                              select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                              select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                   pricing = (from pr in db.Prices
                                              where pr.partID.Equals(p.partID)
                                              select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
@@ -8174,7 +8250,9 @@ namespace API.Models {
                                                     new XAttribute("weightUnit", pp.weightUnit.code),
                                                     new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                     new XAttribute("packageUnit", pp.packageUnit.code),
-                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                    new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                    new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                    new XAttribute("packageType", pp.PackageType.name)
                                                 )).ToList<XElement>()),
                         new XElement("Pricing", (from pr in db.Prices
                                                 where pr.partID.Equals(p.partID)
@@ -8265,7 +8343,9 @@ namespace API.Models {
                                                       new XAttribute("weightUnit", pp.weightUnit.code),
                                                       new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                       new XAttribute("packageUnit", pp.packageUnit.code),
-                                                      new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                        new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                        new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                        new XAttribute("packageType", pp.PackageType.name)
                                                   )).ToList<XElement>()),
                        new XElement("Pricing", new List<XElement>(from pr in db.Prices
                                                                   where pr.partID.Equals(p.partID)
@@ -8613,7 +8693,7 @@ namespace API.Models {
                                                   orderby pv.vTypeID
                                                   select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                                         packages = (from pp in part.PartPackages
-                                                    select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                                    select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                                         pricing = (from pr in part.Prices
                                                    select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                                         reviews = (from r in part.Reviews
@@ -8666,7 +8746,7 @@ namespace API.Models {
                                       orderby pv.vTypeID
                                       select new APIVideo { videoID = pv.pVideoID, youTubeVideoID = pv.video, isPrimary = pv.isPrimary, typeID = pv.vTypeID, type = pv.videoType.name, typeicon = pv.videoType.icon }).ToList<APIVideo>(),
                             packages = (from pp in part.PartPackages
-                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name }).ToList<APIPackage>(),
+                                        select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in part.Prices
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in part.Reviews
@@ -8753,7 +8833,9 @@ namespace API.Models {
                                                                               new XAttribute("weightUnit", pp.weightUnit.code),
                                                                               new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                               new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                              new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                           )).ToList<XElement>()),
                                                  new XElement("Pricing", (from pr in part.Prices
                                                                           orderby pr.priceType
@@ -8839,7 +8921,9 @@ namespace API.Models {
                                                                               new XAttribute("weightUnit", pp.weightUnit.code),
                                                                               new XAttribute("weightUnitLabel", pp.weightUnit.name),
                                                                               new XAttribute("packageUnit", pp.packageUnit.code),
-                                                                              new XAttribute("packageUnitLabel", pp.packageUnit.name)
+                                                                                new XAttribute("packageUnitLabel", pp.packageUnit.name),
+                                                                                new XAttribute("packageTypeID", pp.PackageType.ID),
+                                                                                new XAttribute("packageType", pp.PackageType.name)
                                                                           )).ToList<XElement>()),
                                                  new XElement("Pricing", (from pr in part.Prices
                                                                           orderby pr.priceType
