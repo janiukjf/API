@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="logging">
+  <DataContextMoniker Name="/loggingDataContext" />
+  <nestedChildShapes>
+    <classShape Id="0df4285c-77db-458b-9d1b-13d6c10243cc" absoluteBounds="3.5, 1, 2, 2.3478011067708335">
+      <DataClassMoniker Name="/loggingDataContext/APIAnalytic" />
+      <nestedChildShapes>
+        <elementListCompartment Id="871dcb8c-9283-4e7a-a430-ec3d8de9ef35" absoluteBounds="3.515, 1.46, 1.9700000000000002, 1.7878011067708335" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="8fae58c0-9db4-4ae6-9cd9-6314b5893098" absoluteBounds="0.75, 1.375, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/loggingDataContext/IPtoDNS" />
+      <nestedChildShapes>
+        <elementListCompartment Id="e816df24-5f43-4d03-a0d5-37b37a2a46e5" absoluteBounds="0.765, 1.835, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(2.75 : 2.16429768880208); (3.5 : 2.16429768880208)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/loggingDataContext/IPtoDNS/IPtoDN_APIAnalytic" />
+      <nodes>
+        <classShapeMoniker Id="8fae58c0-9db4-4ae6-9cd9-6314b5893098" />
+        <classShapeMoniker Id="0df4285c-77db-458b-9d1b-13d6c10243cc" />
+      </nodes>
+    </associationConnector>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

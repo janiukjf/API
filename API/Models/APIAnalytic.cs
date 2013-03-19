@@ -9,7 +9,7 @@ namespace API {
 
         public void Log() {
             try {
-                CurtDevDataContext db = new CurtDevDataContext();
+                loggingDataContext db = new loggingDataContext();
                 IPtoDNS ip = GetOrCreateIP(GetIp().ToString());
                 HttpRequest req = HttpContext.Current.Request;
                 APIAnalytic entry = new APIAnalytic {
@@ -46,7 +46,7 @@ namespace API {
         }
 
         private IPtoDNS GetOrCreateIP(string ipaddress) {
-            CurtDevDataContext db = new CurtDevDataContext();
+            loggingDataContext db = new loggingDataContext();
             IPtoDNS ipdetails = db.IPtoDNS.Where(x => x.ipaddress.Equals(ipaddress.Trim())).FirstOrDefault();
             if (ipdetails == null || ipdetails.ID == 0) {
                 ipdetails = new IPtoDNS {

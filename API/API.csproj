@@ -108,6 +108,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="logging.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>logging.dbml</DependentUpon>
+    </Compile>
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Integration.cs" />
     <Compile Include="Models\Fedex.cs" />
@@ -161,6 +166,11 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Views\_404\Index.cshtml" />
+    <Content Include="logging.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>logging.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Properties\PublishProfiles\Web Deploy.pubxml" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +184,11 @@
   <ItemGroup>
     <None Include="AlexDB.dbml.layout">
       <DependentUpon>AlexDB.dbml</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="logging.dbml.layout">
+      <DependentUpon>logging.dbml</DependentUpon>
     </None>
   </ItemGroup>
   <PropertyGroup>

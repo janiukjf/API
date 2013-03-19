@@ -31,7 +31,7 @@ namespace API {
         /// <param name="result"></param>
         private void LookupAsyncCompleteCallback(IAsyncResult ar) {
             ResolveState ioContext = (ResolveState)ar.AsyncState;
-            CurtDevDataContext db = new CurtDevDataContext();
+            loggingDataContext db = new loggingDataContext();
             string hostname = "unknown";
             try {
                 ioContext.IPs = Dns.EndGetHostEntry(ar);
