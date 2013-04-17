@@ -3280,6 +3280,7 @@ namespace API.Models {
         public static string GetPartJSON(int partID = 0, bool integrated = false, int customerID = 0) {
             APIPart part = new APIPart();
             CurtDevDataContext db = new CurtDevDataContext();
+            List<int> statuses = new List<int> { 800, 900 };
 
             if (!integrated) {
                 #region Not Integrated
@@ -3310,6 +3311,7 @@ namespace API.Models {
                             packages = (from pp in p.PartPackages
                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in p.Prices
+                                       where statuses.Contains(p.status)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in p.Reviews
                                        where r.active.Equals(true) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.approved.Equals(true)
@@ -3363,7 +3365,7 @@ namespace API.Models {
                             packages = (from pp in p.PartPackages
                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
-                                       where pr.partID.Equals(p.partID)
+                                       where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
                                        where r.partID.Equals(p.partID) &&((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
@@ -3392,6 +3394,7 @@ namespace API.Models {
         public static string GetPartByVehicleIDJSON(int partID = 0, int vehicleID = 0, bool integrated = false, int customerID = 0) {
             APIPart part = new APIPart();
             CurtDevDataContext db = new CurtDevDataContext();
+            List<int> statuses = new List<int> { 800, 900 };
 
             if (!integrated) {
                 #region Not Integrated
@@ -3432,7 +3435,7 @@ namespace API.Models {
                             packages = (from pp in p.PartPackages
                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
-                                       where pr.partID.Equals(p.partID)
+                                       where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
@@ -3496,7 +3499,7 @@ namespace API.Models {
                             packages = (from pp in p.PartPackages
                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
-                                       where pr.partID.Equals(p.partID)
+                                       where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
@@ -3525,6 +3528,7 @@ namespace API.Models {
         public static string GetPartWithFilterJSON(int partID = 0, double year = 0, string make = "", string model = "", string style = "", bool integrated = false, int customerID = 0) {
             APIPart part = new APIPart();
             CurtDevDataContext db = new CurtDevDataContext();
+            List<int> statuses = new List<int> { 800, 900 };
 
             if (!integrated) {
                 #region Not Integrated
@@ -3570,7 +3574,7 @@ namespace API.Models {
                             packages = (from pp in p.PartPackages
                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
-                                       where pr.partID.Equals(p.partID)
+                                       where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
@@ -3639,7 +3643,7 @@ namespace API.Models {
                             packages = (from pp in p.PartPackages
                                         select new APIPackage { height = pp.height, length = pp.length, width = pp.width, weight = pp.weight, quantity = pp.quantity, dimensionUnit = pp.dimensionUnit.code, dimensionUnitLabel = pp.dimensionUnit.name, weightUnit = pp.weightUnit.code, weightUnitLabel = pp.weightUnit.name, packageUnit = pp.packageUnit.code, packageUnitLabel = pp.packageUnit.name, packageType = pp.PackageType }).ToList<APIPackage>(),
                             pricing = (from pr in db.Prices
-                                       where pr.partID.Equals(p.partID)
+                                       where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                        select new APIAttribute { key = pr.priceType, value = pr.price1.ToString() }).OrderBy(x => x.key).ToList<APIAttribute>(),
                             reviews = (from r in db.Reviews
                                        where r.partID.Equals(p.partID) && ((customerID > 0) ? (r.cust_id.Equals(1) || r.cust_id.Equals(customerID)) : r.cust_id > 0) && r.active.Equals(true) && r.approved.Equals(true)
@@ -3667,6 +3671,7 @@ namespace API.Models {
 
         public static XDocument GetPartXML(int partID = 0, bool integrated = false, int customerID = 0) {
             XDocument xml = new XDocument();
+            List<int> statuses = new List<int> { 800, 900 };
 
             XElement part = new XElement("Part");
             CurtDevDataContext db = new CurtDevDataContext();
@@ -3720,7 +3725,7 @@ namespace API.Models {
                                                         new XAttribute("packageType", pp.PackageType.name)
                                                     )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
-                                                     where pr.partID.Equals(p.partID)
+                                                     where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                                      orderby pr.priceType
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
@@ -3811,7 +3816,7 @@ namespace API.Models {
                                                             new XAttribute("packageType", pp.PackageType.name)
                                                       )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
-                                                     where pr.partID.Equals(p.partID)
+                                                     where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                                      orderby pr.priceType
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
@@ -3862,6 +3867,7 @@ namespace API.Models {
         public static XDocument GetPartByVehicleIDXML(int partID = 0, int vehicleID = 0, bool integrated = false, int customerID = 0) {
             XDocument xml = new XDocument();
             CurtDevDataContext db = new CurtDevDataContext();
+            List<int> statuses = new List<int> { 800, 900 };
 
             XElement part = new XElement("Parts");
             if (!integrated) {
@@ -3923,7 +3929,7 @@ namespace API.Models {
                                                                 new XAttribute("packageType", pp.PackageType.name)
                                                           )).ToList<XElement>()),
                                 new XElement("Pricing", (from pr in db.Prices
-                                                         where pr.partID.Equals(p.partID)
+                                                         where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                                          orderby pr.priceType
                                                          select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                                 new XElement("Reviews",
@@ -4024,7 +4030,7 @@ namespace API.Models {
                                                             new XAttribute("packageType", pp.PackageType.name)
                                                         )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
-                                                     where pr.partID.Equals(p.partID)
+                                                     where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                                      orderby pr.priceType
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
@@ -4074,6 +4080,7 @@ namespace API.Models {
 
         public static XDocument GetPartWithFilterXML(int partID = 0, double year = 0, string make = "", string model = "", string style = "", bool integrated = false, int customerID = 0) {
             XDocument xml = new XDocument();
+            List<int> statuses = new List<int> { 800, 900 };
 
             XElement part = new XElement("Part");
             CurtDevDataContext db = new CurtDevDataContext();
@@ -4091,6 +4098,7 @@ namespace API.Models {
                         where p.partID.Equals(partID) && y.year1.Equals(year) && ma.make1.Equals(make) && mo.model1.Equals(model) && s.style1.Equals(style)
                         select new XElement("Part",
                             new XAttribute("partID", p.partID),
+                            new XAttribute("status", p.status),
                             new XAttribute("status", p.status),
                             new XAttribute("dateModified", Convert.ToDateTime(p.dateModified).ToString()),
                             new XAttribute("dateAdded", Convert.ToDateTime(p.dateAdded).ToString()),
@@ -4141,7 +4149,7 @@ namespace API.Models {
                                                             new XAttribute("packageType", pp.PackageType.name)
                                                         )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
-                                                     where pr.partID.Equals(p.partID)
+                                                     where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                                      orderby pr.priceType
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
@@ -4246,7 +4254,7 @@ namespace API.Models {
                                                             new XAttribute("packageType", pp.PackageType.name)
                                                         )).ToList<XElement>()),
                             new XElement("Pricing", (from pr in db.Prices
-                                                     where pr.partID.Equals(p.partID)
+                                                     where pr.partID.Equals(p.partID) && statuses.Contains(p.status)
                                                      orderby pr.priceType
                                                      select new XElement(XmlConvert.EncodeName(pr.priceType), pr.price1.ToString())).ToList<XElement>()),
                             new XElement("Reviews",
