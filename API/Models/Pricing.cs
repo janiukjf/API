@@ -10,6 +10,7 @@ namespace API {
 
         public List<SimplePricing> GetAll(string key) {
             Authenticate(key);
+            List<int> statuses = new List<int> { 800, 900 };
             CurtDevDataContext db = new CurtDevDataContext();
 
             List<SimplePricing> integrated = new List<SimplePricing>();
@@ -87,8 +88,8 @@ namespace API {
                                              isSale = cp.isSale,
                                              sale_start = Convert.ToDateTime(cp.sale_start).ToString(),
                                              sale_end = Convert.ToDateTime(cp.sale_end).ToString(),
-                                             msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                                             map = c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
+                                             msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
+                                             map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
                                          }).ToList<SimplePricing>();
             results.AddRange(sales.DistinctBy(x => x.partID).ToList<SimplePricing>());
 
@@ -112,12 +113,12 @@ namespace API {
                                           cust_id = this.cust_id,
                                           partID = p.partID,
                                           custPartID = 0,
-                                          price = p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
+                                          price = ((p.Prices.Any(x => x.priceType.Equals("List"))) ? p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
                                           isSale = 0,
                                           sale_start = "",
                                           sale_end = "",
-                                          msrp = p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                                          map = p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
+                                          msrp = ((p.Prices.Any(x => x.priceType.Equals("List"))) ?p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
+                                          map = ((p.Prices.Any(x => x.priceType.Equals("eMap"))) ? p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
                                       }).ToList<SimplePricing>());
                 }
             } else {
@@ -127,12 +128,12 @@ namespace API {
                                   cust_id = this.cust_id,
                                   partID = p.partID,
                                   custPartID = 0,
-                                  price = p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
+                                  price = ((p.Prices.Any(x => x.priceType.Equals("List"))) ? p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
                                   isSale = 0,
                                   sale_start = "",
                                   sale_end = "",
-                                  msrp = p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                                  map = p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
+                                  msrp = ((p.Prices.Any(x => x.priceType.Equals("List"))) ?p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
+                                  map = ((p.Prices.Any(x => x.priceType.Equals("eMap"))) ? p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
                               }).ToList<SimplePricing>();
             }
             results.AddRange(unassigned);
@@ -141,11 +142,12 @@ namespace API {
 
         public List<SimplePricing> FullIntegration() {
             var db = new CurtDevDataContext();
+            List<int> statuses = new List<int> { 800, 900 };
             return (from c in db.Parts
                     join cpr in db.CustomerPricings on c.partID equals cpr.partID into PricingTemp
                     from cp in PricingTemp.DefaultIfEmpty()
                     join ci in db.CartIntegrations on c.partID equals ci.partID
-                    where (cp.cust_id.Equals(this._cust_id) || cp.cust_id.Equals(null)) && (ci.custID.Equals(this.cust_id) || ci.custID.Equals(null))
+                    where (cp.cust_id.Equals(this._cust_id) || cp.cust_id.Equals(null)) && (ci.custID.Equals(this.cust_id) || ci.custID.Equals(null)) && statuses.Contains(c.status)
                     select new SimplePricing {
                         cust_id = this.cust_id,
                         partID = c.partID,
@@ -154,34 +156,36 @@ namespace API {
                         isSale = cp.isSale == null ? 0 : cp.isSale,
                         sale_start = cp.sale_start == null ? "" : Convert.ToDateTime(cp.sale_start).ToString(),
                         sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
-                        msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                        map = c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
+                        msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
+                        map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
                     }).DistinctBy(x => x.partID).ToList<SimplePricing>();
         }
 
         public List<SimplePricing> CartIntegrated() {
             var db = new CurtDevDataContext();
+            List<int> statuses = new List<int> { 800, 900 };
             return (from c in db.Parts
                     join ci in db.CartIntegrations on c.partID equals ci.partID
-                    where ci.custID.Equals(this.cust_id)
+                    where ci.custID.Equals(this.cust_id) && statuses.Contains(c.status)
                     select new SimplePricing {
                         cust_id = this.cust_id,
                         partID = c.partID,
                         custPartID = (ci.custPartID == null) ? 0 : ci.custPartID,
-                        price = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
+                        price = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
                         isSale = 0,
                         sale_start = "",
                         sale_end = "",
-                        msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                        map = c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
+                        msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
+                        map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
                     }).DistinctBy(x => x.partID).ToList<SimplePricing>();
         }
 
         public List<SimplePricing> PricingIntegration() {
             var db = new CurtDevDataContext();
+            List<int> statuses = new List<int> { 800, 900 };
             return (from c in db.Parts
                     join cp in db.CustomerPricings on c.partID equals cp.partID
-                    where cp.cust_id.Equals(this._cust_id)
+                    where cp.cust_id.Equals(this._cust_id) && statuses.Contains(c.status)
                     select new SimplePricing {
                         cust_id = this.cust_id,
                         partID = c.partID,
@@ -190,18 +194,19 @@ namespace API {
                         isSale = cp.isSale == null ? 0 : cp.isSale,
                         sale_start = cp.sale_start == null ? "" : Convert.ToDateTime(cp.sale_start).ToString(),
                         sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
-                        msrp = c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                        map = c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
+                        msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
+                        map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
                     }).DistinctBy(x => x.partID).ToList<SimplePricing>();
         }
 
         public List<SimplePricing> GetUnintegrated(List<int> unintegratedIDs) {
             CurtDevDataContext db = new CurtDevDataContext();
+            List<int> statuses = new List<int> { 800, 900 };
             List<SimplePricing> unintegrated = (from p in db.Parts
                                                 join pr in db.Prices on p.partID equals pr.partID
                                                 join cpr in db.CustomerPricings on p.partID equals cpr.partID into PricingTemp
                                                 from cp in PricingTemp.DefaultIfEmpty()
-                                                where unintegratedIDs.Contains(p.partID) && (cp.cust_id.Equals(this.cust_id) || (cp.cust_id == null || cp.cust_id == 0)) && pr.priceType.ToUpper().Equals("LIST")
+                                                where unintegratedIDs.Contains(p.partID) && (cp.cust_id.Equals(this.cust_id) || (cp.cust_id == null || cp.cust_id == 0)) && pr.priceType.ToUpper().Equals("LIST") && statuses.Contains(p.status)
                                                 select new SimplePricing {
                                                     cust_id = this.cust_id,
                                                     partID = p.partID,
@@ -210,8 +215,8 @@ namespace API {
                                                     isSale = (cp.isSale == null) ? 0 : cp.isSale,
                                                     sale_start = Convert.ToDateTime(cp.sale_start).ToString(),
                                                     sale_end = Convert.ToDateTime(cp.sale_end).ToString(),
-                                                    msrp = p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault(),
-                                                    map = p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault(),
+                                                    msrp = ((p.Prices.Any(x => x.priceType.Equals("List"))) ? p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
+                                                    map = ((p.Prices.Any(x => x.priceType.Equals("eMap"))) ? p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
                                                 }).DistinctBy(x => x.partID).ToList<SimplePricing>();
             return unintegrated;
         }
