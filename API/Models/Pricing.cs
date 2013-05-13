@@ -360,7 +360,7 @@ namespace API {
         private bool checkMap() {
             CurtDevDataContext db = new CurtDevDataContext();
             Price map = db.Prices.Where(x => x.priceType.ToUpper().Equals("eMap") && x.partID.Equals(this.partID)).FirstOrDefault();
-            if (this.price < map.price1 && map.enforced) {
+            if (this.price < (map.price1 / 2) && map.enforced) {
                 return false;
             }
             return true;
