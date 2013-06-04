@@ -5227,7 +5227,8 @@ namespace API.Models {
 
             cats = (from c in db.Categories
                     where c.parentID.Equals(0) && c.isLifestyle.Equals(false)
-                    select c).OrderBy(x => x.sort).ToList<Categories>();
+                    orderby c.sort
+                    select c).ToList<Categories>();
             return JsonConvert.SerializeObject(cats);
         }
 
@@ -5249,6 +5250,67 @@ namespace API.Models {
                                                         )));
             xml.Add(cats);
             return xml;
+        }
+
+        public static XDocument GetFullParentCategoriesXML() {
+            CurtDevDataContext db = new CurtDevDataContext();
+            XDocument xml = new XDocument();
+            XElement cats = new XElement("Categories", (from c in db.Categories
+                                                        where c.parentID.Equals(0) && c.isLifestyle.Equals(false)
+                                                        orderby c.sort
+                                                        select new XElement("Category",
+                                                            new XAttribute("CatID", c.catID),
+                                                            new XAttribute("DateAdded", c.dateAdded),
+                                                            new XAttribute("ParentID", c.parentID),
+                                                            new XAttribute("CategoryName", c.catTitle.ToString().Trim()),
+                                                            new XAttribute("ShortDesc", (c.shortDesc.Length > 0) ? c.shortDesc.ToString().Trim() : ""),
+                                                            new XAttribute("LongDesc", (c.longDesc.Length > 0) ? c.longDesc.ToString().Trim() : ""),
+                                                            new XAttribute("image", (c.image.Length > 0) ? c.image.ToString().Trim() : ""),
+                                                            new XAttribute("isLifestyle", c.isLifestyle),
+                                                            new XElement("SubCategories", (from s in db.Categories
+                                                                                           where s.parentID.Equals(c.catID)
+                                                                                           orderby s.sort
+                                                                                           select new XElement("Category",
+                                                                                                new XAttribute("CatID", s.catID),
+                                                                                                new XAttribute("DateAdded", s.dateAdded),
+                                                                                                new XAttribute("ParentID", s.parentID),
+                                                                                                new XAttribute("CategoryName", s.catTitle.ToString().Trim()),
+                                                                                                new XAttribute("ShortDesc", (s.shortDesc.Length > 0) ? s.shortDesc.ToString().Trim() : ""),
+                                                                                                new XAttribute("LongDesc", (s.longDesc.Length > 0) ? s.longDesc.ToString().Trim() : ""),
+                                                                                                new XAttribute("image", (s.image.Length > 0) ? s.image.ToString().Trim() : ""),
+                                                                                                new XAttribute("isLifestyle", s.isLifestyle)
+                                                                                           )).ToList()))).ToList());
+            xml.Add(cats);
+            return xml;
+        }
+
+        public static string GetFullParentCategoriesJSON() {
+            CurtDevDataContext db = new CurtDevDataContext();
+            List<APICategoryWithChildren> cats = new List<APICategoryWithChildren>();
+
+            cats = (from c in db.Categories
+                    where c.parentID.Equals(0) && c.isLifestyle.Equals(false)
+                    orderby c.sort
+                    select new APICategoryWithChildren { 
+                        catID = c.catID,
+                        dateAdded = c.dateAdded,
+                        parentID = c.parentID,
+                        catTitle = c.catTitle,
+                        shortDesc = c.shortDesc,
+                        longDesc = c.longDesc,
+                        image = c.image,
+                        isLifestyle = c.isLifestyle,
+                        codeID = c.codeID,
+                        sort = c.sort,
+                        vehicleSpecific = c.vehicleSpecific,
+                        Lifestyle_Trailers = c.Lifestyle_Trailers.ToList(),
+                        ContentBridges = c.ContentBridges.ToList(),
+                        SubCategories = (from s in db.Categories
+                                         where s.parentID.Equals(c.catID)
+                                         orderby s.sort
+                                         select s).ToList()
+                    }).ToList<APICategoryWithChildren>();
+            return JsonConvert.SerializeObject(cats);
         }
 
         public static string GetCategoriesJSON(int parentID = 0) {
@@ -9893,6 +9955,23 @@ namespace API.Models {
         public int sort { get; set; }
         public int partCount { get; set; }
         public List<APIContent> content { get; set; }
+    }
+
+    public class APICategoryWithChildren {
+        public int catID { get; set; }
+        public DateTime? dateAdded { get; set; }
+        public int parentID { get; set; }
+        public string catTitle { get; set; }
+        public string shortDesc { get; set; }
+        public string longDesc { get; set; }
+        public string image { get; set; }
+        public int isLifestyle { get; set; }
+        public int codeID { get; set; }
+        public int sort { get; set; }
+        public bool vehicleSpecific { get; set; }
+        public List<Lifestyle_Trailer> Lifestyle_Trailers { get; set; }
+        public List<ContentBridge> ContentBridges { get; set; }
+        public List<Categories> SubCategories { get; set; }
     }
 
     public class APILifestyle {

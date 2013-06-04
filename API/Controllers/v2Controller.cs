@@ -630,6 +630,24 @@ namespace CURT_Docs.Controllers
             }
         }
 
+        public void GetFullParentCategories(string dataType = "", string callback = "") {
+            if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
+                string catJSON = V2Model.GetFullParentCategoriesJSON();
+                if (dataType.ToUpper() == "JSONP") {
+                    Response.ContentType = "application/x-javascript";
+                    Response.Write(callback + "(" + catJSON + ")");
+                } else {
+                    Response.ContentType = "application/json";
+                    Response.Write(catJSON);
+                }
+                Response.End();
+            } else { // Display XML
+                Response.ContentType = "text/xml";
+                Response.Write(V2Model.GetFullParentCategoriesXML());
+                Response.End();
+            }
+        }
+
         public void GetCategories(int parentID = 0, string dataType = "", string callback = "") {
             if (dataType.ToUpper() == "JSON" || dataType.ToUpper() == "JSONP") { // Display JSON
                 string catJSON = V2Model.GetCategoriesJSON(parentID);
