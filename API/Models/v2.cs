@@ -5546,6 +5546,27 @@ namespace API.Models {
             return xml;
         }
 
+        public static string GetCategoryColor(int catID = 0) {
+            try {
+                CurtDevDataContext db = new CurtDevDataContext();
+
+                ColorCode color = (from cc in db.ColorCodes
+                                   join c in db.Categories on cc.codeID equals c.codeID
+                                   where c.catID.Equals(catID)
+                                   select cc).FirstOrDefault<ColorCode>();
+                if (color == null) {
+                    color = new ColorCode {
+                        codeID = 0,
+                        code = "052052052",
+                        font = "ffffff"
+                    };
+                }
+                return JsonConvert.SerializeObject(color);
+            } catch (Exception e) {
+                return "";
+            }
+        }
+
         public static string GetCategoryPartsJSON(int catID = 0, List<int> statuses = null, int customerID = 0, bool integrated = false, int page = 1, int perpage = 0) {
             List<APIPart> part = new List<APIPart>();
             CurtDevDataContext db = new CurtDevDataContext();

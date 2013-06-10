@@ -1321,6 +1321,12 @@ namespace CURT_Docs.Controllers
             Response.End();
         }
 
+        public void GetCategoryColor(int catID = 0) {
+            Response.ContentType = "application/json";
+            Response.Write(V2Model.GetCategoryColor(catID));
+            Response.End();
+        }
+
         /****** End Kiosk Calls *********/
 
 
