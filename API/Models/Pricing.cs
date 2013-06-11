@@ -239,26 +239,41 @@ namespace API {
             }
 
             // Attempt to get a CustomerPricing record for this customerID and partID
-            CustomerPricing tmpPoint = db.CustomerPricings.Where(x => x.cust_id.Equals(this.cust_id) && x.partID.Equals(this.partID) && x.isSale.Equals(this.isSale)).FirstOrDefault<CustomerPricing>();
-            if (tmpPoint != null && tmpPoint.cust_price_id > 0) { // Update existing record
-                tmpPoint.price = this.price;
-                tmpPoint.isSale = this.isSale;
-                tmpPoint.sale_start = this.sale_start;
-                tmpPoint.sale_end = this.sale_end;
-            } else { // Insert new record
-                tmpPoint = this;
-                tmpPoint.cust_id = this.cust_id;
-                db.CustomerPricings.InsertOnSubmit(tmpPoint);
+            List<CustomerPricing> tmpPoints = db.CustomerPricings.Where(x => x.cust_id.Equals(this.cust_id) && x.partID.Equals(this.partID)).ToList<CustomerPricing>();
+            bool updated = false;
+            List<CustomerPricing> deletables = new List<CustomerPricing>();
+            foreach (CustomerPricing tmpPoint in tmpPoints) {
+                if (tmpPoint.sale_end < DateTime.Now) {
+                    // expired sale - delete
+                    deletables.Add(tmpPoint);
+                }
+                if (this.isSale == tmpPoint.isSale) {
+                    if(!updated) {
+                        tmpPoint.price = this.price;
+                        tmpPoint.isSale = this.isSale;
+                        tmpPoint.sale_start = this.sale_start;
+                        tmpPoint.sale_end = this.sale_end;
+                        updated = true;
+                    } else {
+                        deletables.Add(tmpPoint);
+                    }
+                }
+            }
+            if (!updated) {
+                db.CustomerPricings.InsertOnSubmit(this);
+            }
+            if (deletables.Count > 0) {
+                db.CustomerPricings.DeleteAllOnSubmit(deletables);
             }
             db.SubmitChanges();
 
             SimplePricing pricePoint = new SimplePricing {
                 cust_id = this.cust_id,
-                partID = tmpPoint.partID,
-                price = tmpPoint.price,
-                isSale = tmpPoint.isSale,
-                sale_start = tmpPoint.sale_start.ToString(),
-                sale_end = tmpPoint.sale_end.ToString()
+                partID = this.partID,
+                price = this.price,
+                isSale = this.isSale,
+                sale_start = this.sale_start.ToString(),
+                sale_end = this.sale_end.ToString()
             };
             return pricePoint;
         }
