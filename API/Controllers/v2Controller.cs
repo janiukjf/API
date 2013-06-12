@@ -1093,9 +1093,9 @@ namespace CURT_Docs.Controllers
                 int customerID = Convert.ToInt32(Request.Form["customerID"]);
                 int partID = Convert.ToInt32(Request.Form["partID"]);
                 decimal price = Convert.ToDecimal(Request.Form["price"]);
-                int isSale = Convert.ToInt32(Request.Form["isSale"]);
-                string sale_start = Request.Form["sale_start"].Trim();
-                string sale_end = Request.Form["sale_end"].Trim();
+                int isSale = (Request.Form["isSale"] != null && Request.Form["isSale"] != "") ? Convert.ToInt32(Request.Form["isSale"]) : 0;
+                string sale_start = (Request.Form["sale_start"] != null) ? Request.Form["sale_start"].Trim() : "";
+                string sale_end = (Request.Form["sale_end"] != null) ? Request.Form["sale_end"].Trim() : "";
 
                 CustomerPricing pricing = new CustomerPricing{
                     cust_id = customerID,
