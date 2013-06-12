@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using MoreLinq;
@@ -79,7 +80,7 @@ namespace API {
                                          from cp in PricingTemp.DefaultIfEmpty()
                                          join ci in db.CartIntegrations on c.partID equals ci.partID into IntegrateTemp
                                          from integ in IntegrateTemp.DefaultIfEmpty()
-                                         where cp.cust_id.Equals(this._cust_id) && integ.custID.Equals(this.cust_id) && cp.isSale.Equals(1)
+                                         where cp.cust_id.Equals(this._cust_id) && integ.custID.Equals(this.cust_id) && cp.isSale.Equals(1) && statuses.Contains(c.status)
                                          select new SimplePricing {
                                              cust_id = this.cust_id,
                                              partID = c.partID,
@@ -108,7 +109,7 @@ namespace API {
                                 select pid).ToList<int>();
 
                     results.AddRange((from p in db.Parts
-                                      where need.Contains(p.partID)
+                                      where need.Contains(p.partID) && statuses.Contains(p.status)
                                       select new SimplePricing {
                                           cust_id = this.cust_id,
                                           partID = p.partID,
@@ -123,7 +124,7 @@ namespace API {
                 }
             } else {
                 unassigned = (from p in db.Parts
-                              where !result_ids.Contains(p.partID)
+                              where !result_ids.Contains(p.partID) && statuses.Contains(p.status)
                               select new SimplePricing {
                                   cust_id = this.cust_id,
                                   partID = p.partID,
@@ -231,12 +232,23 @@ namespace API {
             if (this.isSale == 1) {
                 if (this.sale_start == null || this.sale_start < DateTime.Today.AddDays(-1)) { throw new Exception("If record is going to marked as sale, sale start is required and cannot be in the past."); }
                 if (this.sale_end == null || this.sale_end < DateTime.Now || this.sale_end <= this.sale_start) { throw new Exception("If record is going to marked as sale, sale end is required, cannot be in the past, and cannot be sooner or equal to the sale start."); }
+            } else {
+                this.sale_start = null;
+                this.sale_end = null;
             }
 
             // Make sure the price point isn't set lower than map
             if (!checkMap()) {
                 throw new Exception("You may not set the price point lower than map price.");
             }
+            CustomerPricing newpricing = new CustomerPricing {
+                cust_id = this.cust_id,
+                partID = this.partID,
+                price = this.price,
+                isSale = this.isSale,
+                sale_start = this.sale_start,
+                sale_end = this.sale_end
+            };
 
             // Attempt to get a CustomerPricing record for this customerID and partID
             List<CustomerPricing> tmpPoints = db.CustomerPricings.Where(x => x.cust_id.Equals(this.cust_id) && x.partID.Equals(this.partID)).ToList<CustomerPricing>();
@@ -260,7 +272,7 @@ namespace API {
                 }
             }
             if (!updated) {
-                db.CustomerPricings.InsertOnSubmit(this);
+                db.CustomerPricings.InsertOnSubmit(newpricing);
             }
             if (deletables.Count > 0) {
                 db.CustomerPricings.DeleteAllOnSubmit(deletables);
@@ -268,12 +280,12 @@ namespace API {
             db.SubmitChanges();
 
             SimplePricing pricePoint = new SimplePricing {
-                cust_id = this.cust_id,
-                partID = this.partID,
-                price = this.price,
-                isSale = this.isSale,
-                sale_start = this.sale_start.ToString(),
-                sale_end = this.sale_end.ToString()
+                cust_id = newpricing.cust_id,
+                partID = newpricing.partID,
+                price = newpricing.price,
+                isSale = newpricing.isSale,
+                sale_start = newpricing.sale_start.ToString(),
+                sale_end = newpricing.sale_end.ToString()
             };
             return pricePoint;
         }

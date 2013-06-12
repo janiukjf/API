@@ -8,6 +8,7 @@ using System.Text;
 using API;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
+using System.Net.Mail;
 
 namespace CURT_Docs.Controllers
 {
@@ -1087,8 +1088,15 @@ namespace CURT_Docs.Controllers
         /// <param name="sale_start">POST variable for sale start</param>
         /// <param name="sale_end">POST variable for sale end</param>
         [AcceptVerbs(HttpVerbs.Post)]
-        public void SetPrice(int customerID = 0, string key = "", int partID = 0, decimal price = 0, int isSale = 0, string sale_start = "", string sale_end = "") {
+        public void SetPrice(string key = "") {
             try {
+                int customerID = Convert.ToInt32(Request.Form["customerID"]);
+                int partID = Convert.ToInt32(Request.Form["partID"]);
+                decimal price = Convert.ToDecimal(Request.Form["price"]);
+                int isSale = Convert.ToInt32(Request.Form["isSale"]);
+                string sale_start = Request.Form["sale_start"].Trim();
+                string sale_end = Request.Form["sale_end"].Trim();
+
                 CustomerPricing pricing = new CustomerPricing{
                     cust_id = customerID,
                     partID = partID,
@@ -1097,14 +1105,17 @@ namespace CURT_Docs.Controllers
                     sale_start = (sale_start.Length > 0) ? Convert.ToDateTime(sale_start) : (DateTime?)null,
                     sale_end = (sale_end.Length > 0) ? Convert.ToDateTime(sale_end) : (DateTime?)null
                 };
+
+                SimplePricing simpleprice = pricing.Set(key);
+
                 Response.ContentType = "application/json";
-                Response.Write(JsonConvert.SerializeObject(pricing.Set(key)));
+                Response.Write(JsonConvert.SerializeObject(simpleprice));
                 Response.End();
             } catch (Exception e) {
                 //Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
                 //Response.StatusDescription = e.Message;
                 Response.ContentType = "application/json";
-                Response.Write(JsonConvert.SerializeObject(e.Message,Formatting.Indented));
+                Response.Write(JsonConvert.SerializeObject(e.Message + " " + e.StackTrace,Formatting.Indented));
                 Response.End();
             }
         }
