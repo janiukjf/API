@@ -21,7 +21,7 @@ namespace API {
                         join cir in db.CartIntegrations on c.partID equals cir.partID into IntegrationTemp
                         from ci in IntegrationTemp.Where(x => x.custID == this.cust_id).DefaultIfEmpty()
                         where statuses.Contains(c.status)
-                        select new {
+                        select new SimplePricing {
                             cust_id = this.cust_id,
                             partID = c.partID,
                             custPartID = (ci.custPartID == null) ? 0 : ci.custPartID,
@@ -29,8 +29,8 @@ namespace API {
                             isSale = cp.isSale == null ? 0 : cp.isSale,
                             sale_start = cp.sale_start == null ? "" : Convert.ToDateTime(cp.sale_start).ToString(),
                             sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
-                            msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price).FirstOrDefault() : 0),
-                            map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price).FirstOrDefault() : 0),
+                            msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
+                            map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
                         }).AsParallel().ToList();
 
             return allparts.OrderBy(x => x.partID).ToList<SimplePricing>();
