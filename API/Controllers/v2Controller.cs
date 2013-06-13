@@ -1279,7 +1279,7 @@ namespace CURT_Docs.Controllers
                 }
                 StreamReader reader = new StreamReader(Request.InputStream);
                 string pricedata = reader.ReadToEnd();
-                List<string> rows = pricedata.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
+                List<string> rows = pricedata.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList();
                 Parallel.ForEach(rows, currentRow => {
                     try {
                         List<string> fields = currentRow.Split(',').ToList();
@@ -1297,15 +1297,18 @@ namespace CURT_Docs.Controllers
                             sale_start = (sale_start.Length > 0) ? Convert.ToDateTime(sale_start) : (DateTime?)null,
                             sale_end = (sale_end.Length > 0) ? Convert.ToDateTime(sale_end) : (DateTime?)null
                         };
-                        pricing.Set(key);
+                        try {
+                            pricing.Set(key);
+                        } catch { }
                         CartIntegration integration = new CartIntegration {
                             custID = customerID,
                             custPartID = CustomerPartID,
                             partID = partID
                         };
-                        integration.Set(key);
-                    } catch (Exception e){
-                    }
+                        try {
+                            integration.Set(key);
+                        } catch { }
+                    } catch {}
                 });
                 Response.ContentType = "application/json";
                 Response.Write(JsonConvert.SerializeObject("uploading", Formatting.Indented));
@@ -1492,6 +1495,16 @@ namespace CURT_Docs.Controllers
             }
             return returnlist;
         }
+        public static void SendEmail(string to, string subject, string body, bool html) {
+            MailMessage mail = new MailMessage();
+            SmtpClient SmtpServer = new SmtpClient();
+            mail.To.Add(to);
+            mail.Subject = subject;
+            mail.IsBodyHtml = html;
+            mail.Body = body;
+            SmtpServer.Send(mail);
+        }
+
 
     } // End Class
 } // End Namespace
