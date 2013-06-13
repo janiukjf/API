@@ -79,6 +79,7 @@ namespace API {
                         tmpPoint.isSale = this.isSale;
                         tmpPoint.sale_start = this.sale_start;
                         tmpPoint.sale_end = this.sale_end;
+                        newpricing.cust_price_id = tmpPoint.cust_price_id;
                         updated = true;
                     } else {
                         deletables.Add(tmpPoint);
@@ -93,13 +94,15 @@ namespace API {
             }
             db.SubmitChanges();
 
+            CustomerPricing currentPrice = db.CustomerPricings.Where(x => x.cust_price_id.Equals(newpricing.cust_price_id)).FirstOrDefault<CustomerPricing>();
+
             SimplePricing pricePoint = new SimplePricing {
-                cust_id = newpricing.cust_id,
-                partID = newpricing.partID,
-                price = newpricing.price,
-                isSale = newpricing.isSale,
-                sale_start = newpricing.sale_start.ToString(),
-                sale_end = newpricing.sale_end.ToString()
+                cust_id = currentPrice.cust_id,
+                partID = currentPrice.partID,
+                price = currentPrice.price,
+                isSale = currentPrice.isSale,
+                sale_start = currentPrice.sale_start.ToString(),
+                sale_end = currentPrice.sale_end.ToString()
             };
             return pricePoint;
         }

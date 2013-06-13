@@ -234,21 +234,33 @@ namespace API {
             if (this.partID == 0) { throw new Exception("Part Number failed to validate against null or zero."); }
 
             // Attempt to get a CustomerPricing record for this customerID and partID
-            CartIntegration tmpIntegration = db.CartIntegrations.Where(x => x.custID.Equals(this.custID) && x.partID.Equals(this.partID)).FirstOrDefault<CartIntegration>();
-            if (tmpIntegration != null && tmpIntegration.referenceID > 0) { // Update existing record
-                tmpIntegration.custPartID = this.custPartID;
-            } else { // Insert new record
-                tmpIntegration = this;
-                tmpIntegration.custID = this.custID;
-                db.CartIntegrations.InsertOnSubmit(tmpIntegration);
+            List<CartIntegration> tmpIntegrations = db.CartIntegrations.Where(x => x.custID.Equals(this.custID) && x.partID.Equals(this.partID)).ToList<CartIntegration>();
+            CartIntegration newintegration = new CartIntegration();
+            List<CartIntegration> deleteables = new List<CartIntegration>();
+            bool updated = false;
+            foreach (CartIntegration tmpIntegration in tmpIntegrations) {
+                if (!updated) {
+                    tmpIntegration.custPartID = this.custPartID;
+                    updated = true;
+                } else {
+                    deleteables.Add(tmpIntegration);
+                }
+            }
+            if (!updated) {
+                newintegration = this;
+                newintegration.custID = this.custID;
+                db.CartIntegrations.InsertOnSubmit(newintegration);
+            }
+            if (deleteables.Count > 0) {
+                db.CartIntegrations.DeleteAllOnSubmit(deleteables);
             }
             db.SubmitChanges();
 
             CartIntegration cartIntegration = new CartIntegration {
                 custID = this.custID,
-                partID = tmpIntegration.partID,
-                custPartID = tmpIntegration.custPartID,
-                referenceID = tmpIntegration.referenceID
+                partID = newintegration.partID,
+                custPartID = newintegration.custPartID,
+                referenceID = newintegration.referenceID
             };
             return cartIntegration;
         }

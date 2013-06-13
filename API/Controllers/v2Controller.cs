@@ -9,6 +9,8 @@ using API;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using System.Net.Mail;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace CURT_Docs.Controllers
 {
@@ -1260,6 +1262,51 @@ namespace CURT_Docs.Controllers
                 Response.Write("");
                 Response.End();
             } catch (Exception e) {
+                Response.ContentType = "application/json";
+                Response.Write(JsonConvert.SerializeObject(e.Message, Formatting.Indented));
+                Response.End();
+            }
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        public void PriceUpload(string key = "", int customerID = 0) {
+            try {
+                StreamReader reader = new StreamReader(Request.InputStream);
+                string pricedata = reader.ReadToEnd();
+                List<string> rows = pricedata.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
+                Parallel.ForEach(rows, currentRow => {
+                    try {
+                        List<string> fields = currentRow.Split(',').ToList();
+                        int partID = Convert.ToInt32(fields[0]);
+                        int CustomerPartID = (fields[1].Trim() != "") ? Convert.ToInt32(fields[1]) : 0;
+                        decimal price = (fields[2].Trim() != "") ? Convert.ToDecimal(fields[2]) : 0;
+                        string sale_start = fields[3].Trim();
+                        string sale_end = fields[4].Trim();
+                        int isSale = (sale_start != "") ? 1 : 0;
+                        CustomerPricing pricing = new CustomerPricing {
+                            cust_id = customerID,
+                            partID = partID,
+                            price = price,
+                            isSale = isSale,
+                            sale_start = (sale_start.Length > 0) ? Convert.ToDateTime(sale_start) : (DateTime?)null,
+                            sale_end = (sale_end.Length > 0) ? Convert.ToDateTime(sale_end) : (DateTime?)null
+                        };
+                        pricing.Set(key);
+                        CartIntegration integration = new CartIntegration {
+                            custID = customerID,
+                            custPartID = CustomerPartID,
+                            partID = partID
+                        };
+                        integration.Set(key);
+                    } catch (Exception e){
+                    }
+                });
+                Response.ContentType = "application/json";
+                Response.Write(JsonConvert.SerializeObject("uploading", Formatting.Indented));
+                Response.End();
+            } catch (Exception e) {
+                Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+                Response.StatusDescription = e.Message;
                 Response.ContentType = "application/json";
                 Response.Write(JsonConvert.SerializeObject(e.Message, Formatting.Indented));
                 Response.End();
