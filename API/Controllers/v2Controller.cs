@@ -1271,6 +1271,12 @@ namespace CURT_Docs.Controllers
         [AcceptVerbs(HttpVerbs.Post)]
         public void PriceUpload(string key = "", int customerID = 0) {
             try {
+                if (key == "") {
+                    throw new Exception("Key is missing and is required");
+                }
+                if (customerID == 0) {
+                    throw new Exception("Customer ID is missing and is required");
+                }
                 StreamReader reader = new StreamReader(Request.InputStream);
                 string pricedata = reader.ReadToEnd();
                 List<string> rows = pricedata.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
