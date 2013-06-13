@@ -14,212 +14,26 @@ namespace API {
             List<int> statuses = new List<int> { 800, 900 };
             CurtDevDataContext db = new CurtDevDataContext();
 
-            List<SimplePricing> integrated = new List<SimplePricing>();
-            List<SimplePricing> both = new List<SimplePricing>();
-            List<SimplePricing> pricing = new List<SimplePricing>();
-            List<SimplePricing> cart = new List<SimplePricing>();
-            Parallel.Invoke(() => {
-                both = FullIntegration();
-            }, () => {
-                pricing = PricingIntegration();
-            }, () => {
-                cart = CartIntegrated();
-            });
+            List<SimplePricing> allparts = new List<SimplePricing>();
+            allparts = (from c in db.Parts
+                        join cpr in db.CustomerPricings on c.partID equals cpr.partID into PricingTemp
+                        from cp in PricingTemp.Where(x => x.cust_id == this.cust_id).DefaultIfEmpty()
+                        join cir in db.CartIntegrations on c.partID equals cir.partID into IntegrationTemp
+                        from ci in IntegrationTemp.Where(x => x.custID == this.cust_id).DefaultIfEmpty()
+                        where statuses.Contains(c.status)
+                        select new {
+                            cust_id = this.cust_id,
+                            partID = c.partID,
+                            custPartID = (ci.custPartID == null) ? 0 : ci.custPartID,
+                            price = (cp.price == null) ? 0 : cp.price,
+                            isSale = cp.isSale == null ? 0 : cp.isSale,
+                            sale_start = cp.sale_start == null ? "" : Convert.ToDateTime(cp.sale_start).ToString(),
+                            sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
+                            msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price).FirstOrDefault() : 0),
+                            map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price).FirstOrDefault() : 0),
+                        }).AsParallel().ToList();
 
-            integrated.AddRange(both);
-            List<int> integrated_parts = integrated.Select(x => x.partID).ToList<int>();
-            if (integrated_parts.Count > 2100) {
-                var part_nums = integrated_parts;
-                while (part_nums.Count != 0) {
-                    List<int> ids = new List<int>();
-                    ids = part_nums.Take(200).ToList<int>();
-                    part_nums = part_nums.Skip(2000).ToList<int>();
-
-                    integrated.AddRange((from p in pricing
-                                         where !integrated_parts.Contains(p.partID)
-                                         select p).ToList<SimplePricing>());
-                    integrated_parts = integrated.Select(x => x.partID).ToList<int>();
-                    integrated.AddRange((from c in cart
-                                         where !integrated_parts.Contains(c.partID)
-                                         select c).ToList<SimplePricing>());
-                }
-            } else {
-                integrated.AddRange((from p in pricing
-                                     where !integrated_parts.Contains(p.partID)
-                                     select p).ToList<SimplePricing>());
-                integrated_parts = integrated.Select(x => x.partID).ToList<int>();
-                integrated.AddRange((from c in cart
-                                     where !integrated_parts.Contains(c.partID)
-                                     select c).ToList<SimplePricing>());
-
-            }
-
-            List<int> integratedID = integrated.Select(x => x.partID).ToList<int>();
-            List<int> allParts = db.Parts.Select(x => x.partID).ToList<int>();
-            List<int> unintegratedIDs = allParts.Except(integratedID).ToList<int>();
-
-            List<SimplePricing> unintegrated = new List<SimplePricing>();
-            if (unintegratedIDs.Count > 2100) {
-                while (unintegratedIDs.Count != 0) {
-                    List<int> ids = new List<int>();
-                    ids = unintegratedIDs.Take(2000).ToList<int>();
-                    unintegratedIDs = unintegratedIDs.Skip(2000).ToList();
-                    List<SimplePricing> current = this.GetUnintegrated(ids);
-                    integrated.AddRange(current);
-                }
-            } else {
-                unintegrated = this.GetUnintegrated(unintegratedIDs);
-            }
-
-            integrated.AddRange(unintegrated);
-
-            List<SimplePricing> results = integrated.DistinctBy(x => x.partID).ToList<SimplePricing>();
-
-            List<SimplePricing> sales = (from c in db.Parts
-                                         join pr in db.CustomerPricings on c.partID equals pr.partID into PricingTemp
-                                         from cp in PricingTemp.DefaultIfEmpty()
-                                         join ci in db.CartIntegrations on c.partID equals ci.partID into IntegrateTemp
-                                         from integ in IntegrateTemp.DefaultIfEmpty()
-                                         where cp.cust_id.Equals(this._cust_id) && integ.custID.Equals(this.cust_id) && cp.isSale.Equals(1) && statuses.Contains(c.status)
-                                         select new SimplePricing {
-                                             cust_id = this.cust_id,
-                                             partID = c.partID,
-                                             custPartID = (integ.custPartID == null) ? 0 : integ.custPartID,
-                                             price = cp.price,
-                                             isSale = cp.isSale,
-                                             sale_start = Convert.ToDateTime(cp.sale_start).ToString(),
-                                             sale_end = Convert.ToDateTime(cp.sale_end).ToString(),
-                                             msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                                             map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
-                                         }).ToList<SimplePricing>();
-            results.AddRange(sales.DistinctBy(x => x.partID).ToList<SimplePricing>());
-
-            var result_ids = results.OrderBy(x => x.partID).Select(x => x.partID).ToList<int>();
-            var part_ids = allParts.OrderBy(x => x).ToList<int>();
-            var unassigned = new List<SimplePricing>();
-            if (result_ids.Count > 2100) {
-                while (result_ids.Count != 0) {
-                    var ids = result_ids.Take(2000).ToList<int>();
-                    var p_ids = part_ids.Take(2000).ToList<int>();
-                    result_ids = result_ids.Skip(2000).ToList<int>();
-                    part_ids = part_ids.Skip(2000).ToList<int>();
-                    
-                    var need = (from pid in p_ids
-                                where !ids.Contains(pid)
-                                select pid).ToList<int>();
-
-                    results.AddRange((from p in db.Parts
-                                      where need.Contains(p.partID) && statuses.Contains(p.status)
-                                      select new SimplePricing {
-                                          cust_id = this.cust_id,
-                                          partID = p.partID,
-                                          custPartID = 0,
-                                          price = ((p.Prices.Any(x => x.priceType.Equals("List"))) ? p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                                          isSale = 0,
-                                          sale_start = "",
-                                          sale_end = "",
-                                          msrp = ((p.Prices.Any(x => x.priceType.Equals("List"))) ?p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                                          map = ((p.Prices.Any(x => x.priceType.Equals("eMap"))) ? p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
-                                      }).ToList<SimplePricing>());
-                }
-            } else {
-                unassigned = (from p in db.Parts
-                              where !result_ids.Contains(p.partID) && statuses.Contains(p.status)
-                              select new SimplePricing {
-                                  cust_id = this.cust_id,
-                                  partID = p.partID,
-                                  custPartID = 0,
-                                  price = ((p.Prices.Any(x => x.priceType.Equals("List"))) ? p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                                  isSale = 0,
-                                  sale_start = "",
-                                  sale_end = "",
-                                  msrp = ((p.Prices.Any(x => x.priceType.Equals("List"))) ?p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                                  map = ((p.Prices.Any(x => x.priceType.Equals("eMap"))) ? p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
-                              }).ToList<SimplePricing>();
-            }
-            results.AddRange(unassigned);
-            return results.OrderBy(x => x.partID).ToList<SimplePricing>();
-        }
-
-        public List<SimplePricing> FullIntegration() {
-            var db = new CurtDevDataContext();
-            List<int> statuses = new List<int> { 800, 900 };
-            return (from c in db.Parts
-                    join cpr in db.CustomerPricings on c.partID equals cpr.partID into PricingTemp
-                    from cp in PricingTemp.DefaultIfEmpty()
-                    join ci in db.CartIntegrations on c.partID equals ci.partID
-                    where (cp.cust_id.Equals(this._cust_id) || cp.cust_id.Equals(null)) && (ci.custID.Equals(this.cust_id) || ci.custID.Equals(null)) && statuses.Contains(c.status)
-                    select new SimplePricing {
-                        cust_id = this.cust_id,
-                        partID = c.partID,
-                        custPartID = (ci.custPartID == null) ? 0 : ci.custPartID,
-                        price = (cp.price == null) ? 0 : cp.price,
-                        isSale = cp.isSale == null ? 0 : cp.isSale,
-                        sale_start = cp.sale_start == null ? "" : Convert.ToDateTime(cp.sale_start).ToString(),
-                        sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
-                        msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                        map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
-                    }).DistinctBy(x => x.partID).ToList<SimplePricing>();
-        }
-
-        public List<SimplePricing> CartIntegrated() {
-            var db = new CurtDevDataContext();
-            List<int> statuses = new List<int> { 800, 900 };
-            return (from c in db.Parts
-                    join ci in db.CartIntegrations on c.partID equals ci.partID
-                    where ci.custID.Equals(this.cust_id) && statuses.Contains(c.status)
-                    select new SimplePricing {
-                        cust_id = this.cust_id,
-                        partID = c.partID,
-                        custPartID = (ci.custPartID == null) ? 0 : ci.custPartID,
-                        price = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                        isSale = 0,
-                        sale_start = "",
-                        sale_end = "",
-                        msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                        map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
-                    }).DistinctBy(x => x.partID).ToList<SimplePricing>();
-        }
-
-        public List<SimplePricing> PricingIntegration() {
-            var db = new CurtDevDataContext();
-            List<int> statuses = new List<int> { 800, 900 };
-            return (from c in db.Parts
-                    join cp in db.CustomerPricings on c.partID equals cp.partID
-                    where cp.cust_id.Equals(this._cust_id) && statuses.Contains(c.status)
-                    select new SimplePricing {
-                        cust_id = this.cust_id,
-                        partID = c.partID,
-                        custPartID = 0,
-                        price = (cp.price == null) ? 0 : cp.price,
-                        isSale = cp.isSale == null ? 0 : cp.isSale,
-                        sale_start = cp.sale_start == null ? "" : Convert.ToDateTime(cp.sale_start).ToString(),
-                        sale_end = cp.sale_end == null ? "" : Convert.ToDateTime(cp.sale_end).ToString(),
-                        msrp = ((c.Prices.Any(x => x.priceType.Equals("List"))) ? c.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                        map = ((c.Prices.Any(x => x.priceType.Equals("eMap"))) ? c.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
-                    }).DistinctBy(x => x.partID).ToList<SimplePricing>();
-        }
-
-        public List<SimplePricing> GetUnintegrated(List<int> unintegratedIDs) {
-            CurtDevDataContext db = new CurtDevDataContext();
-            List<int> statuses = new List<int> { 800, 900 };
-            List<SimplePricing> unintegrated = (from p in db.Parts
-                                                join pr in db.Prices on p.partID equals pr.partID
-                                                join cpr in db.CustomerPricings on p.partID equals cpr.partID into PricingTemp
-                                                from cp in PricingTemp.DefaultIfEmpty()
-                                                where unintegratedIDs.Contains(p.partID) && (cp.cust_id.Equals(this.cust_id) || (cp.cust_id == null || cp.cust_id == 0)) && pr.priceType.ToUpper().Equals("LIST") && statuses.Contains(p.status)
-                                                select new SimplePricing {
-                                                    cust_id = this.cust_id,
-                                                    partID = p.partID,
-                                                    custPartID = 0,
-                                                    price = (cp.price == null) ? pr.price1 : cp.price,
-                                                    isSale = (cp.isSale == null) ? 0 : cp.isSale,
-                                                    sale_start = Convert.ToDateTime(cp.sale_start).ToString(),
-                                                    sale_end = Convert.ToDateTime(cp.sale_end).ToString(),
-                                                    msrp = ((p.Prices.Any(x => x.priceType.Equals("List"))) ? p.Prices.Where(x => x.priceType.Equals("List")).Select(x => x.price1).FirstOrDefault() : 0),
-                                                    map = ((p.Prices.Any(x => x.priceType.Equals("eMap"))) ? p.Prices.Where(x => x.priceType.Equals("eMap")).Select(x => x.price1).FirstOrDefault() : 0),
-                                                }).DistinctBy(x => x.partID).ToList<SimplePricing>();
-            return unintegrated;
+            return allparts.OrderBy(x => x.partID).ToList<SimplePricing>();
         }
 
         public SimplePricing Set(string key) {
