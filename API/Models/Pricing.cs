@@ -69,21 +69,22 @@ namespace API {
             bool updated = false;
             List<CustomerPricing> deletables = new List<CustomerPricing>();
             foreach (CustomerPricing tmpPoint in tmpPoints) {
-                if (tmpPoint.sale_end < DateTime.Now) {
+                bool deleted = false;
+                if (tmpPoint.sale_end != null && tmpPoint.sale_end < DateTime.Now) {
                     // expired sale - delete
                     deletables.Add(tmpPoint);
-                } else {
-                    if (this.isSale == tmpPoint.isSale) {
-                        if (!updated) {
-                            tmpPoint.price = this.price;
-                            tmpPoint.isSale = this.isSale;
-                            tmpPoint.sale_start = this.sale_start;
-                            tmpPoint.sale_end = this.sale_end;
-                            newpricing.cust_price_id = tmpPoint.cust_price_id;
-                            updated = true;
-                        } else {
-                            deletables.Add(tmpPoint);
-                        }
+                    deleted = true;
+                }
+                if (!deleted && this.isSale == tmpPoint.isSale) {
+                    if (!updated) {
+                        tmpPoint.price = this.price;
+                        tmpPoint.isSale = this.isSale;
+                        tmpPoint.sale_start = this.sale_start;
+                        tmpPoint.sale_end = this.sale_end;
+                        newpricing.cust_price_id = tmpPoint.cust_price_id;
+                        updated = true;
+                    } else {
+                        deletables.Add(tmpPoint);
                     }
                 }
             }
