@@ -239,14 +239,18 @@ namespace API {
             List<CartIntegration> deleteables = new List<CartIntegration>();
             bool updated = false;
             foreach (CartIntegration tmpIntegration in tmpIntegrations) {
-                if (!updated) {
-                    tmpIntegration.custPartID = this.custPartID;
-                    updated = true;
-                } else {
+                if (tmpIntegration.custPartID == 0) {
                     deleteables.Add(tmpIntegration);
+                } else {
+                    if (!updated && this.custPartID > 0) {
+                        tmpIntegration.custPartID = this.custPartID;
+                        updated = true;
+                    } else {
+                        deleteables.Add(tmpIntegration);
+                    }
                 }
             }
-            if (!updated) {
+            if (!updated && this.custPartID > 0) {
                 newintegration = this;
                 newintegration.custID = this.custID;
                 db.CartIntegrations.InsertOnSubmit(newintegration);

@@ -72,17 +72,18 @@ namespace API {
                 if (tmpPoint.sale_end < DateTime.Now) {
                     // expired sale - delete
                     deletables.Add(tmpPoint);
-                }
-                if (this.isSale == tmpPoint.isSale) {
-                    if(!updated) {
-                        tmpPoint.price = this.price;
-                        tmpPoint.isSale = this.isSale;
-                        tmpPoint.sale_start = this.sale_start;
-                        tmpPoint.sale_end = this.sale_end;
-                        newpricing.cust_price_id = tmpPoint.cust_price_id;
-                        updated = true;
-                    } else {
-                        deletables.Add(tmpPoint);
+                } else {
+                    if (this.isSale == tmpPoint.isSale) {
+                        if (!updated) {
+                            tmpPoint.price = this.price;
+                            tmpPoint.isSale = this.isSale;
+                            tmpPoint.sale_start = this.sale_start;
+                            tmpPoint.sale_end = this.sale_end;
+                            newpricing.cust_price_id = tmpPoint.cust_price_id;
+                            updated = true;
+                        } else {
+                            deletables.Add(tmpPoint);
+                        }
                     }
                 }
             }
@@ -112,33 +113,9 @@ namespace API {
 
             if (this.partID == 0) { throw new Exception("Invalid reference to part."); }
 
-            decimal listPrice = GetList();
+            this.price = GetList();
 
-            CurtDevDataContext db = new CurtDevDataContext();
-
-            CustomerPricing pricePoint = db.CustomerPricings.Where(x => x.partID.Equals(this.partID) && x.cust_id.Equals(this.cust_id)).FirstOrDefault<CustomerPricing>();
-            if (pricePoint == null) {
-                pricePoint = new CustomerPricing {
-                    cust_id = this.cust_id,
-                    partID = this.partID,
-                    isSale = 0,
-                    price = listPrice
-                };
-                db.CustomerPricings.InsertOnSubmit(pricePoint);
-            } else {
-                pricePoint.price = listPrice;
-            }
-            db.SubmitChanges();
-
-            SimplePricing price = new SimplePricing {
-                cust_id = this.cust_id,
-                partID = pricePoint.partID,
-                price = pricePoint.price,
-                isSale = pricePoint.isSale,
-                sale_start = ((pricePoint.sale_start != null) ? Convert.ToDateTime(pricePoint.sale_start).ToString() : ""),
-                sale_end = ((pricePoint.sale_end != null) ? Convert.ToDateTime(pricePoint.sale_end).ToString() : "")
-            };
-            return price;
+            return this.Set(key);
         }
 
         public void SetAllToMap(string key) {
@@ -160,31 +137,9 @@ namespace API {
             Authenticate(key);
             if (this.partID == 0) { throw new Exception("Invalid reference to part."); }
 
-            decimal mapPrice = GetMap();
+            this.price = GetMap();
 
-            var db = new CurtDevDataContext();
-            CustomerPricing pricePoint = db.CustomerPricings.Where(x => x.partID.Equals(this.partID) && x.cust_id.Equals(this.cust_id)).FirstOrDefault<CustomerPricing>();
-            if (pricePoint == null) {
-                pricePoint = new CustomerPricing {
-                    cust_id = this.cust_id,
-                    partID = this.partID,
-                    price = mapPrice,
-                    isSale = 0
-                };
-                db.CustomerPricings.InsertOnSubmit(pricePoint);
-            } else {
-                pricePoint.price = mapPrice;
-            }
-            db.SubmitChanges();
-
-            return new SimplePricing {
-                cust_id = this.cust_id,
-                partID = pricePoint.partID,
-                price = pricePoint.price,
-                isSale = pricePoint.isSale,
-                sale_start = ((pricePoint.sale_start != null) ? Convert.ToDateTime(pricePoint.sale_start).ToString() : ""),
-                sale_end = ((pricePoint.sale_end != null) ? Convert.ToDateTime(pricePoint.sale_end).ToString() : "")
-            };
+            return this.Set(key);
         }
 
         public void RemoveSale(string key) {
