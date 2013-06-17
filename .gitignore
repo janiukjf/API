@@ -14,3 +14,5 @@ TestResults
 *.user
 API.dll
 API.pdb
+Web.Debug.config
+Web.Release.config
